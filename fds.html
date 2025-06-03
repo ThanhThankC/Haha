@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Quản lý từ vựng (Offline)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1600px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #121212;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #e0e0e0;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .input-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        textarea, input[type="text"], input[type="date"], input[type="number"], select {
+            padding: 7px;
+            border: 1px solid #333;
+            border-radius: 6px;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: #40c4ff;
+            box-shadow: 0 0 5px rgba(64, 196, 255, 0.5);
+        }
+        textarea {
+            width: 100.55%;
+            height: 100px;
+            resize: none;
+            font-size: 0.9em;
+        }
+        input[type="date"], input[type="number"] {
+            flex: 1;
+            min-width: 120px;
+        }
+        input[type="number"] {
+            width: 90px;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+            cursor: pointer;
+        }
+        button {
+            padding: 7px 14px;
+            margin: 4px;
+            background-color: #0288d1;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        button:hover {
+            background-color: #0277bd;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(2, 119, 189, 0.4);
+        }
+        #status {
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        .error {
+            color: #ff5252;
+        }
+        .success {
+            color: #4caf50;
+        }
+        .panels {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            width: 101.6%;
+        }
+        .panel, .chart-panel {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            font-size: 0.9em;
+        }
+        .panel h3, .chart-panel h3 {
+            margin: 0 0 8px;
+            color: #ffffff;
+            font-size: 1.1em;
+        }
+        .panel table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .panel th, .panel td {
+            padding: 6px;
+            border: 1px solid #333;
+            text-align: left;
+            color: #e0e0e0;
+        }
+        .panel th {
+            background-color: #252525;
+        }
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .total-row {
+            background-color: #333;
+            font-weight: bold;
+        }
+        #panel4 {
+            flex: none;
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        #monthCharts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        .month-chart {
+            padding: 10px;
+            background-color: #252525;
+            border-radius: 6px;
+        }
+        .month-chart h4 {
+            margin: 0 0 8px;
+            color: #e0e0e0;
+            font-size: 0.95em;
+            text-align: center;
+        }
+        .chart-panel select, #panel4 select {
+            margin-bottom: 8px;
+            width: 150px;
+        }
+        canvas {
+            max-width: 100%;
+        }
+        @media (max-width: 768px) {
+            .panels {
+                flex-direction: column;
+            }
+            .panel, .chart-panel {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📚 Quản lý từ vựng</h1>
+
+    <div class="input-section">
+        <input type="date" id="dateInput" />
+        <input type="number" id="wordCount" min="0" placeholder="Số từ vựng" />
+        <button onclick="addEntry()">➕ Add</button>
+        <button onclick="refreshData()">🔄 Update</button>
+        <button onclick="loadVocabTxt()">📄 Load vocab.txt</button>
+        <button onclick="saveVocabTxt()">💾 Save vocab.txt</button>
+    </div>
+    <textarea id="dataInput" placeholder="Dữ liệu: ngày,số từ vựng (ví dụ: 2025-06-02,10)"></textarea>
+    <div>
+        <input type="text" id="fileName" placeholder="Tên file (ví dụ: vocab.txt)" />
+        <button onclick="saveToFile()">💾 Save</button>
+        <button onclick="loadFromFile()">📂 Open</button>
+    </div>
+    <div id="status"></div>
+
+    <div class="panels">
+        <div class="panel" id="panel1">
+            <h3>Thống kê theo ngày</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Số từ</th>
+                            <th>Tổng tích lũy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTable1"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="panel" id="panel2">
+            <h3>Thống kê theo tháng</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tháng</th>
+                            <th>Số từ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTable2"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="chart-panel" id="panel3">
+            <h3>Thống kê theo ngày (Biểu đồ)</h3>
+            <select id="monthSelect" onchange="updateChart()"></select>
+            <canvas id="wordChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-panel" id="panel4">
+        <h3>Thống kê theo năm (Biểu đồ)</h3>
+        <select id="yearSelect" onchange="updateYearChart()"></select>
+        <div id="monthCharts"></div>
+    </div>
+
+    <input type="file" id="fileInput" style="display:none" accept=".txt" onchange="handleFile(event)" />
+
+    <script>
+        let chartInstance = null;
+        let monthChartInstances = [];
+
+        function showStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = isError ? 'error' : 'success';
+            setTimeout(() => status.textContent = '', 3000);
+        }
+
+        function addEntry() {
+            const date = document.getElementById('dateInput').value;
+            const wordCount = document.getElementById('wordCount').value;
+            if (!date || !wordCount) {
+                showStatus("Vui lòng chọn ngày và nhập số từ vựng!", true);
+                return;
+            }
+            const entry = `${date},${wordCount}\n`;
+            document.getElementById('dataInput').value += entry;
+            document.getElementById('dateInput').value = '';
+            document.getElementById('wordCount').value = '';
+            showStatus("Đã thêm dữ liệu!");
+            updateStats();
+            updateMonthSelect();
+            updateYearSelect();
+            updateChart();
+            updateYearChart();
+        }
+
+        function refreshData() {
+            const data = document.getElementById('dataInput').value;
+            if (!data.trim()) {
+                showStatus("Chưa có dữ liệu để làm mới!", true);
+                return;
+            }
+            showStatus("Đã làm mới dữ liệu!");
+            updateStats();
+            updateMonthSelect();
+            updateYearSelect();
+            updateChart();
+            updateYearChart();
+        }
+
+        function saveToFile() {
+            const data = document.getElementById('dataInput').value;
+            const fileName = document.getElementById('fileName').value || "vocab.txt";
+            if (!data) {
+                showStatus("Vui lòng nhập dữ liệu trước khi lưu!", true);
+                return;
+            }
+            const blob = new Blob([data], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName.endsWith('.txt') ? fileName : `${fileName}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus("Lưu file thành công!");
+        }
+
+        function saveVocabTxt() {
+            const data = document.getElementById('dataInput').value;
+            if (!data) {
+                showStatus("Vui lòng nhập dữ liệu trước khi lưu!", true);
+                return;
+            }
+            const blob = new Blob([data], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'vocab.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus("Lưu vocab.txt thành công!");
+        }
+
+        function loadFromFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                showStatus("Không có file được chọn!", true);
+                return;
+            }
+            if (!file.name.endsWith('.txt')) {
+                showStatus("Vui lòng chọn file .txt!", true);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = e.target.result;
+                document.getElementById('dataInput').value = data;
+                showStatus("Mở file thành công!");
+                updateStats();
+                updateMonthSelect();
+                updateYearSelect();
+                updateChart();
+                updateYearChart();
+            };
+            reader.onerror = function() {
+                showStatus("Lỗi khi đọc file!", true);
+            };
+            reader.readAsText(file);
+        }
+
+        function loadVocabTxt() {
+            fetch('./vocab.txt')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Không tìm thấy file vocab.txt!');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    document.getElementById('dataInput').value = data;
+                    showStatus("Đã tải vocab.txt thành công!");
+                    updateStats();
+                    updateMonthSelect();
+                    updateYearSelect();
+                    updateChart();
+                    updateYearChart();
+                })
+                .catch(error => {
+                    showStatus(error.message, true);
+                });
+        }
+
+        function updateStats() {
+            const data = document.getElementById('dataInput').value;
+            const lines = data.split('\n').filter(line => line.trim());
+            const dailyStats = {};
+            const monthlyStats = {};
+            let totalWords = 0;
+
+            lines.forEach(line => {
+                const [date, count] = line.split(',');
+                if (date && count && !isNaN(count)) {
+                    const wordCount = parseInt(count);
+                    totalWords += wordCount;
+                    dailyStats[date] = (dailyStats[date] || 0) + wordCount;
+                    const month = date.slice(0, 7);
+                    monthlyStats[month] = (monthlyStats[month] || 0) + wordCount;
+                }
+            });
+
+            const statsTable1 = document.getElementById('statsTable1');
+            const statsTable2 = document.getElementById('statsTable2');
+            statsTable1.innerHTML = '';
+            statsTable2.innerHTML = '';
+
+            // Tính tổng tích lũy từ ngày cũ nhất đến mới nhất
+            const sortedDaysAsc = Object.entries(dailyStats).sort();
+            const cumulativeTotals = {};
+            let cumulativeTotal = 0;
+            sortedDaysAsc.forEach(([date, count]) => {
+                cumulativeTotal += count;
+                cumulativeTotals[date] = cumulativeTotal;
+            });
+
+            // Hiển thị bảng với ngày mới nhất ở trên
+            const sortedDaysDesc = sortedDaysAsc.reverse();
+            statsTable1.innerHTML += `
+                <tr class="total-row">
+                    <td>Tổng</td>
+                    <td></td>
+                    <td>${totalWords}</td>
+                </tr>
+            `;
+            sortedDaysDesc.forEach(([date, count]) => {
+                statsTable1.innerHTML += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${count}</td>
+                        <td>${cumulativeTotals[date]}</td>
+                    </tr>
+                `;
+            });
+
+            statsTable2.innerHTML += `
+                <tr class="total-row">
+                    <td>Tổng</td>
+                    <td>${totalWords}</td>
+                </tr>
+            `;
+            Object.entries(monthlyStats).sort().reverse().forEach(([month, count]) => {
+                statsTable2.innerHTML += `
+                    <tr>
+                        <td>${month}</td>
+                        <td>${count}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateMonthSelect() {
+            const data = document.getElementById('dataInput').value;
+            const lines = data.split('\n').filter(line => line.trim());
+            const months = new Set();
+            lines.forEach(line => {
+                const [date] = line.split(',');
+                if (date) months.add(date.slice(0, 7));
+            });
+
+            const monthSelect = document.getElementById('monthSelect');
+            monthSelect.innerHTML = '';
+            const sortedMonths = Array.from(months).sort();
+            sortedMonths.forEach(month => {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+            if (sortedMonths.length > 0) {
+                monthSelect.value = sortedMonths[sortedMonths.length - 1]; // Chọn tháng mới nhất
+                updateChart();
+            }
+        }
+
+        function updateYearSelect() {
+            const data = document.getElementById('dataInput').value;
+            const lines = data.split('\n').filter(line => line.trim());
+            const years = new Set();
+            lines.forEach(line => {
+                const [date] = line.split(',');
+                if (date) years.add(date.slice(0, 4));
+            });
+
+            const yearSelect = document.getElementById('yearSelect');
+            yearSelect.innerHTML = '';
+            const sortedYears = Array.from(years).sort();
+            sortedYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+            if (sortedYears.length > 0) {
+                yearSelect.value = sortedYears[sortedYears.length - 1]; // Chọn năm mới nhất
+                updateYearChart();
+            }
+        }
+
+        function getDaysInMonth(year, month) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        function updateChart() {
+            const data = document.getElementById('dataInput').value;
+            const selectedMonth = document.getElementById('monthSelect').value;
+            if (!selectedMonth) return;
+
+            const lines = data.split('\n').filter(line => line.trim());
+            const dailyStats = {};
+            lines.forEach(line => {
+                const [date, count] = line.split(',');
+                if (date && count && !isNaN(count) && date.startsWith(selectedMonth)) {
+                    dailyStats[date] = parseInt(count);
+                }
+            });
+
+            const [year, month] = selectedMonth.split('-').map(Number);
+            const daysInMonth = getDaysInMonth(year, month);
+            const labels = Array.from({ length: daysInMonth }, (_, i) => {
+                const day = String(i + 1).padStart(2, '0');
+                return `${selectedMonth}-${day}`;
+            });
+            const dataPoints = labels.map(date => dailyStats[date] || 0.1);
+
+            const ctx = document.getElementById('wordChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.map(date => date.slice(8, 10)),
+                    datasets: [{
+                        label: 'Số từ vựng',
+                        data: dataPoints,
+                        backgroundColor: '#40c4ff',
+                        borderColor: '#0288d1',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#e0e0e0' },
+                            grid: { color: '#333' }
+                        },
+                        x: {
+                            ticks: { color: '#e0e0e0' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0' } }
+                    }
+                }
+            });
+        }
+
+        function updateYearChart() {
+            const data = document.getElementById('dataInput').value;
+            const selectedYear = document.getElementById('yearSelect').value;
+            if (!selectedYear) return;
+
+            const lines = data.split('\n').filter(line => line.trim());
+            const dailyStats = {};
+            let maxValue = 0;
+            lines.forEach(line => {
+                const [date, count] = line.split(',');
+                if (date && count && !isNaN(count) && date.startsWith(selectedYear)) {
+                    const wordCount = parseInt(count);
+                    dailyStats[date] = wordCount;
+                    maxValue = Math.max(maxValue, wordCount);
+                }
+            });
+
+            const monthCharts = document.getElementById('monthCharts');
+            monthCharts.innerHTML = '';
+            monthChartInstances.forEach(chart => chart.destroy());
+            monthChartInstances = [];
+
+            for (let month = 1; month <= 12; month++) {
+                const monthStr = String(month).padStart(2, '0');
+                const daysInMonth = getDaysInMonth(selectedYear, month);
+                const labels = Array.from({ length: daysInMonth }, (_, i) => String(i + 1).padStart(2, '0'));
+                const dataPoints = labels.map(day => {
+                    const date = `${selectedYear}-${monthStr}-${day}`;
+                    return dailyStats[date] || 0;
+                });
+
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'month-chart';
+                const chartTitle = document.createElement('h4');
+                chartTitle.textContent = `Tháng ${monthStr}`;
+                const canvas = document.createElement('canvas');
+                canvas.id = `monthChart${month}`;
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(canvas);
+                monthCharts.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Số từ vựng',
+                            data: dataPoints,
+                            borderColor: '#ffca28',
+                            backgroundColor: 'rgba(255, 202, 40, 0.2)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ffca28',
+                            pointBorderColor: '#ffb300',
+                            pointRadius: 2
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: maxValue || 10,
+                                ticks: { color: '#e0e0e0', font: { size: 10 } },
+                                grid: { color: '#333' }
+                            },
+                            x: {
+                                ticks: { color: '#e0e0e0', font: { size: 10 }, maxTicksLimit: 10 },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+                monthChartInstances.push(chart);
+            }
+        }
+    </script>
+</body>
+</html>
