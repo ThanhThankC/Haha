@@ -515,6 +515,10 @@ function addData() {
                 resetStopwatch();
             }
             fetchFirebaseData();
+            // Refresh trang như F5 sau khi lưu thành công
+            setTimeout(() => {
+                location.reload();
+            }, 1000); // Delay 1s để hiển thị status trước khi refresh
         })
         .catch((error) => {
             console.error("Lỗi ghi dữ liệu:", error);
