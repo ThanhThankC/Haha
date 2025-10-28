@@ -368,6 +368,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const morningInput = document.getElementById('morning');
     const afternoonInput = document.getElementById('afternoon');
 
+    // Set default date to today ngay khi DOM ready
+    const dateInput = document.getElementById('date');
+    if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
     // Hiện/ẩn stopwatch khi chọn loại
     typeSelect.addEventListener('change', () => {
         const isPlank = typeSelect.value === 'Plank';
@@ -500,43 +506,21 @@ function addData() {
         .then(() => {
             return db.push({ date, morning: morningToSave, afternoon: afternoonToSave, type });
         })
-.then(() => {
-    showStatus("Đã lưu vào Firebase!");
-    
-    // ✅ Giữ nguyên ngày hiện tại (không xóa)
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
-
-    // Xóa input buổi sáng & chiều (để gọn)
-    document.getElementById('morning').value = '';
-    document.getElementById('afternoon').value = '';
-
-    // Reset stopwatch nếu là Plank
-    if (document.getElementById('type').value === 'Plank') {
-        resetStopwatch();
-    }
-
-    // ✅ Sau khi lưu, tải lại toàn bộ và dữ liệu của ngày hiện tại
-    fetchFirebaseData().then(() => {
-        loadDataForDate();
-    });
-})
-
+        .then(() => {
+            showStatus("Đã lưu vào Firebase!");
+            document.getElementById('date').value = '';
+            document.getElementById('morning').value = '';
+            document.getElementById('afternoon').value = '';
+            if (document.getElementById('type').value === 'Plank') {
+                resetStopwatch();
+            }
+            fetchFirebaseData();
+        })
         .catch((error) => {
             console.error("Lỗi ghi dữ liệu:", error);
             showStatus("Lỗi khi lưu Firebase!", true);
         });
 }
-
-function refreshPageState() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
-    fetchFirebaseData().then(() => {
-        loadDataForDate();
-        updateStopwatchDisplay();
-    });
-}
-
 
 // ✅ Đọc dữ liệu từ Firebase và hiển thị vào textarea
 function fetchFirebaseData() {
@@ -631,15 +615,6 @@ function updateCharts() {
         charts[type].update();
     });
 }
-
-window.addEventListener("load", () => {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
-
-    fetchFirebaseData();
-    updateStopwatchDisplay();
-});
-
 
 // Gọi hàm khi load trang để hiển thị dữ liệu Firebase
 window.addEventListener("load", () => {
