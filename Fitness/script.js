@@ -5,14 +5,6 @@ let monthChartInstances = [];
  
 let fitnessData = [];
 
-// Set default date to today ngay khi DOM ready (sớm hơn window.load)
-document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById('date');
-    if (dateInput && !dateInput.value) {  // Chỉ set nếu chưa có giá trị
-        dateInput.value = new Date().toISOString().split('T')[0];
-    }
-});
-
 // ✅ Hàm thông báo status
 function showStatus(message, isError = false) {
     const status = document.getElementById('status');
@@ -626,5 +618,6 @@ window.addEventListener("load", () => {
     fetchFirebaseData();
     updateStopwatchDisplay(); // Khởi tạo hiển thị stopwatch
 });
+
 
 
