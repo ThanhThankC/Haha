@@ -42,7 +42,7 @@ const charts = {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    title: { display: true, text: 'Ngày', color: '#e0e0e0', font: { size: 16 }},
+                    title: { display: true, text: 'Ngày', color: '#e0e0e0', font: { size: 16 } },
                     ticks: {
                         callback: function(value, index) {
                             const year = parseInt(document.getElementById('year').value);
@@ -57,10 +57,10 @@ const charts = {
                     grid: { color: '#444' }
                 },
                 y: {
-                    title: { display: true, text: 'Số Lần', color: '#e0e0e0',font: { size: 16 } },
+                    title: { display: true, text: 'Số Lần', color: '#e0e0e0', font: { size: 16 } },
                     beginAtZero: true,
                     stacked: true,
-                    ticks: { color: '#e0e0e0', font: { size: 16 }},
+                    ticks: { color: '#e0e0e0', font: { size: 16 } },
                     grid: { color: '#444' },
                 }
             },
@@ -81,7 +81,7 @@ const charts = {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    title: { display: true, text: 'Ngày', color: '#e0e0e0',font: { size: 16 } },
+                    title: { display: true, text: 'Ngày', color: '#e0e0e0', font: { size: 16 } },
                     ticks: {
                         callback: function(value, index) {
                             const year = parseInt(document.getElementById('year').value);
@@ -171,14 +171,14 @@ const charts = {
                     grid: { color: '#444' }
                 },
                 y: {
-                    title: { display: true, text: 'Số Lần', color: '#e0e0e0' , font: { size: 16 }},
+                    title: { display: true, text: 'Số Lần', color: '#e0e0e0' , font: { size: 16 } },
                     beginAtZero: true,
                     stacked: true,
                     ticks: { color: '#e0e0e0', font: { size: 16 } },
                     grid: { color: '#444' }
                 }
             },
-            plugins: { legend: { labels: { color: '#e0e0e0' , font: { size: 16 }} } }
+            plugins: { legend: { labels: { color: '#e0e0e0' , font: { size: 16 } } } }
         }
     }),
     'Plank': new Chart(document.getElementById('plankChart').getContext('2d'), {
@@ -195,7 +195,7 @@ const charts = {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    title: { display: true, text: 'Ngày', color: '#e0e0e0' , font: { size: 16 }},
+                    title: { display: true, text: 'Ngày', color: '#e0e0e0', font: { size: 16 } },
                     ticks: {
                         callback: function(value, index) {
                             const year = parseInt(document.getElementById('year').value);
@@ -209,7 +209,7 @@ const charts = {
                     grid: { color: '#444' }
                 },
                 y: {
-                    title: { display: true, text: 'Số Lần', color: '#e0e0e0', font: { size: 16 } },
+                    title: { display: true, text: 'Giây', color: '#e0e0e0', font: { size: 16 } },
                     beginAtZero: true,
                     stacked: true,
                     ticks: { color: '#e0e0e0', font: { size: 16 } },
@@ -233,7 +233,7 @@ const charts = {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    title: { display: true, text: 'Ngày', color: '#e0e0e0' , font: { size: 16 }},
+                    title: { display: true, text: 'Ngày', color: '#e0e0e0' , font: { size: 16 } },
                     ticks: {
                         callback: function(value, index) {
                             const year = parseInt(document.getElementById('year').value);
@@ -297,6 +297,151 @@ const charts = {
     })
 };
 
+// ✅ Stopwatch cho bài tập (đặc biệt Plank)
+let stopwatchInterval = null;
+let stopwatchTime = 0; // Giây
+let isRunning = false;
+
+function updateStopwatchDisplay() {
+    const minutes = Math.floor(stopwatchTime / 60);
+    const seconds = stopwatchTime % 60;
+    document.getElementById('stopwatch-display').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function startStopwatch() {
+    if (!document.getElementById('type').value) {
+        showStatus('Vui lòng chọn loại tập trước!', true);
+        return;
+    }
+    if (isRunning) {
+        // Dừng và điền dữ liệu
+        clearInterval(stopwatchInterval);
+        isRunning = false;
+        document.getElementById('startStopBtn').textContent = 'Start';
+        document.getElementById('startStopBtn').classList.remove('running');
+        
+        // Điền thời gian (giây) vào Buổi Chiều
+        document.getElementById('afternoon').value = stopwatchTime;
+        showStatus(`Đã dừng! Thời gian: ${stopwatchTime} giây.`);
+    } else {
+        // Bắt đầu
+        stopwatchInterval = setInterval(() => {
+            stopwatchTime++;
+            updateStopwatchDisplay();
+        }, 1000);
+        isRunning = true;
+        document.getElementById('startStopBtn').textContent = 'Stop';
+        document.getElementById('startStopBtn').classList.add('running');
+        showStatus('Đang bấm giờ...');
+    }
+}
+
+function resetStopwatch() {
+    clearInterval(stopwatchInterval);
+    stopwatchTime = 0;
+    isRunning = false;
+    updateStopwatchDisplay();
+    document.getElementById('startStopBtn').textContent = 'Start';
+    document.getElementById('startStopBtn').classList.remove('running');
+    showStatus('Đã reset thời gian.');
+}
+
+// Event listeners cho stopwatch
+document.addEventListener('DOMContentLoaded', () => {
+    const typeSelect = document.getElementById('type');
+    const stopwatchGroup = document.getElementById('stopwatch-group');
+    const stopwatchControls = document.getElementById('stopwatch-controls');
+    const startStopBtn = document.getElementById('startStopBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const morningInput = document.getElementById('morning');
+    const afternoonInput = document.getElementById('afternoon');
+
+    // Hiện/ẩn stopwatch khi chọn loại
+    typeSelect.addEventListener('change', () => {
+        const isPlank = typeSelect.value === 'Plank';
+        if (isPlank) {
+            stopwatchGroup.style.display = 'flex';
+            stopwatchControls.style.display = 'flex';
+            // Thay đổi label và step cho Plank (đơn vị giây, số nguyên)
+            document.getElementById('morningLabel').textContent = 'Buổi Sáng (giây):';
+            document.getElementById('afternoonLabel').textContent = 'Buổi Chiều (giây):';
+            morningInput.step = '1';
+            afternoonInput.step = '1';
+            // Reset stopwatch
+            resetStopwatch();
+        } else {
+            stopwatchGroup.style.display = 'none';
+            stopwatchControls.style.display = 'none';
+            // Khôi phục label và step cho các loại khác (số lần, thập phân)
+            document.getElementById('morningLabel').textContent = 'Buổi Sáng:';
+            document.getElementById('afternoonLabel').textContent = 'Buổi Chiều:';
+            morningInput.step = '0.1';
+            afternoonInput.step = '0.1';
+            // Clear stopwatch nếu đang chạy
+            if (isRunning) {
+                clearInterval(stopwatchInterval);
+                isRunning = false;
+                startStopBtn.textContent = 'Start';
+                startStopBtn.classList.remove('running');
+            }
+        }
+        // Trigger load data for current date and type
+        loadDataForDate();
+    });
+
+    startStopBtn.addEventListener('click', startStopwatch);
+    resetBtn.addEventListener('click', resetStopwatch);
+
+    // Vấn đề 4: Khi click/focus vào input morning/afternoon (chỉ cho Plank), set stopwatchTime từ value
+    [morningInput, afternoonInput].forEach(input => {
+        input.addEventListener('focus', () => {
+            if (typeSelect.value === 'Plank') {
+                const value = parseFloat(input.value) || 0;
+                stopwatchTime = Math.round(value); // Round để số nguyên giây
+                updateStopwatchDisplay();
+            }
+        });
+    });
+});
+
+// ✅ Load dữ liệu cho ngày và loại hiện tại khi chọn date hoặc type
+function loadDataForDate() {
+    const date = document.getElementById('date').value;
+    const type = document.getElementById('type').value;
+    if (!date || !type) return;
+
+    const db = firebase.database().ref("fitnessEntries");
+    db.orderByChild("date").equalTo(date).once("value")
+        .then(snapshot => {
+            let morning = 0;
+            let afternoon = 0;
+            snapshot.forEach(child => {
+                if (child.val().type === type) {
+                    morning = child.val().morning || 0;
+                    afternoon = child.val().afternoon || 0;
+                }
+            });
+            document.getElementById('morning').value = morning;
+            document.getElementById('afternoon').value = afternoon;
+            // Nếu Plank, update stopwatch display từ afternoon (hoặc morning nếu muốn)
+            if (type === 'Plank') {
+                stopwatchTime = Math.round(afternoon);
+                updateStopwatchDisplay();
+            }
+            showStatus(`Đã load dữ liệu cho ${date} - ${type}`);
+        })
+        .catch(err => {
+            console.error("Lỗi load dữ liệu:", err);
+            showStatus("Lỗi khi load dữ liệu!", true);
+        });
+}
+
+// Event cho date change
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('date').addEventListener('change', loadDataForDate);
+});
+
 // ✅ Ghi dữ liệu từ form vào Realtime Database
 function addData() {
     const date = document.getElementById('date').value;
@@ -307,6 +452,14 @@ function addData() {
     if (!date || !type) {
         showStatus('Vui lòng chọn ngày và loại tập!', true);
         return;
+    }
+
+    // Đối với Plank, round thành số nguyên giây
+    let morningToSave = morning;
+    let afternoonToSave = afternoon;
+    if (type === 'Plank') {
+        morningToSave = Math.round(morning);
+        afternoonToSave = Math.round(afternoon);
     }
 
     const db = firebase.database().ref("fitnessEntries");
@@ -322,13 +475,16 @@ function addData() {
             return Promise.all(updates);
         })
         .then(() => {
-            return db.push({ date, morning, afternoon, type });
+            return db.push({ date, morning: morningToSave, afternoon: afternoonToSave, type });
         })
         .then(() => {
             showStatus("Đã lưu vào Firebase!");
             document.getElementById('date').value = '';
             document.getElementById('morning').value = '';
             document.getElementById('afternoon').value = '';
+            if (document.getElementById('type').value === 'Plank') {
+                resetStopwatch();
+            }
             fetchFirebaseData();
         })
         .catch((error) => {
@@ -434,4 +590,5 @@ function updateCharts() {
 // Gọi hàm khi load trang để hiển thị dữ liệu Firebase
 window.addEventListener("load", () => {
     fetchFirebaseData();
+    updateStopwatchDisplay(); // Khởi tạo hiển thị stopwatch
 });
