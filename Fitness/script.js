@@ -309,21 +309,29 @@ function updateStopwatchDisplay() {
         `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
+function updateStopwatchFromInput(session) {
+    const input = document.getElementById(session);
+    const value = parseFloat(input.value) || 0;
+    stopwatchTime = Math.round(value);
+    updateStopwatchDisplay();
+}
+
 function startStopwatch() {
     if (!document.getElementById('type').value) {
         showStatus('Vui lòng chọn loại tập trước!', true);
         return;
     }
     if (isRunning) {
-        // Dừng và điền dữ liệu
+        // Dừng và điền dữ liệu vào input tương ứng
         clearInterval(stopwatchInterval);
         isRunning = false;
-        document.getElementById('startStopBtn').textContent = 'Start';
-        document.getElementById('startStopBtn').classList.remove('running');
+        const startStopBtn = document.getElementById('startStopBtn');
+        startStopBtn.textContent = 'Start';
+        startStopBtn.classList.remove('running');
         
-        // Điền thời gian (giây) vào Buổi Chiều
-        document.getElementById('afternoon').value = stopwatchTime;
-        showStatus(`Đã dừng! Thời gian: ${stopwatchTime} giây.`);
+        const session = document.getElementById('sessionSelect').value;
+        document.getElementById(session).value = stopwatchTime;
+        showStatus(`Đã dừng! Thời gian: ${stopwatchTime} giây (buổi ${session === 'morning' ? 'Sáng' : 'Chiều'}).`);
     } else {
         // Bắt đầu
         stopwatchInterval = setInterval(() => {
@@ -331,8 +339,9 @@ function startStopwatch() {
             updateStopwatchDisplay();
         }, 1000);
         isRunning = true;
-        document.getElementById('startStopBtn').textContent = 'Stop';
-        document.getElementById('startStopBtn').classList.add('running');
+        const startStopBtn = document.getElementById('startStopBtn');
+        startStopBtn.textContent = 'Stop';
+        startStopBtn.classList.add('running');
         showStatus('Đang bấm giờ...');
     }
 }
@@ -342,8 +351,9 @@ function resetStopwatch() {
     stopwatchTime = 0;
     isRunning = false;
     updateStopwatchDisplay();
-    document.getElementById('startStopBtn').textContent = 'Start';
-    document.getElementById('startStopBtn').classList.remove('running');
+    const startStopBtn = document.getElementById('startStopBtn');
+    startStopBtn.textContent = 'Start';
+    startStopBtn.classList.remove('running');
     showStatus('Đã reset thời gian.');
 }
 
@@ -354,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopwatchControls = document.getElementById('stopwatch-controls');
     const startStopBtn = document.getElementById('startStopBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const sessionSelect = document.getElementById('sessionSelect');
     const morningInput = document.getElementById('morning');
     const afternoonInput = document.getElementById('afternoon');
 
@@ -368,8 +379,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('afternoonLabel').textContent = 'Buổi Chiều (giây):';
             morningInput.step = '1';
             afternoonInput.step = '1';
-            // Reset stopwatch
-            resetStopwatch();
+            // Set session mặc định dựa vào thời gian thực
+            const currentHour = new Date().getHours();
+            sessionSelect.value = currentHour < 12 ? 'morning' : 'afternoon';
+            // Update stopwatch từ input mặc định
+            updateStopwatchFromInput(sessionSelect.value);
+            // Reset stopwatch (nhưng giữ time từ input)
         } else {
             stopwatchGroup.style.display = 'none';
             stopwatchControls.style.display = 'none';
@@ -388,6 +403,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Trigger load data for current date and type
         loadDataForDate();
+    });
+
+    // Event cho sessionSelect change: Update stopwatch từ input tương ứng
+    sessionSelect.addEventListener('change', () => {
+        if (typeSelect.value === 'Plank') {
+            updateStopwatchFromInput(sessionSelect.value);
+        }
     });
 
     startStopBtn.addEventListener('click', startStopwatch);
@@ -424,10 +446,11 @@ function loadDataForDate() {
             });
             document.getElementById('morning').value = morning;
             document.getElementById('afternoon').value = afternoon;
-            // Nếu Plank, update stopwatch display từ afternoon (hoặc morning nếu muốn)
+            // Nếu Plank, update stopwatch display từ input dựa trên session hiện tại
             if (type === 'Plank') {
-                stopwatchTime = Math.round(afternoon);
-                updateStopwatchDisplay();
+                const sessionSelect = document.getElementById('sessionSelect');
+                const currentSession = sessionSelect ? sessionSelect.value : 'afternoon';
+                updateStopwatchFromInput(currentSession);
             }
             showStatus(`Đã load dữ liệu cho ${date} - ${type}`);
         })
