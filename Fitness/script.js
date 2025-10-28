@@ -500,16 +500,28 @@ function addData() {
         .then(() => {
             return db.push({ date, morning: morningToSave, afternoon: afternoonToSave, type });
         })
-        .then(() => {
-            showStatus("Đã lưu vào Firebase!");
-            document.getElementById('date').value = '';
-            document.getElementById('morning').value = '';
-            document.getElementById('afternoon').value = '';
-            if (document.getElementById('type').value === 'Plank') {
-                resetStopwatch();
-            }
-            fetchFirebaseData();
-        })
+.then(() => {
+    showStatus("Đã lưu vào Firebase!");
+    
+    // ✅ Giữ nguyên ngày hiện tại (không xóa)
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+
+    // Xóa input buổi sáng & chiều (để gọn)
+    document.getElementById('morning').value = '';
+    document.getElementById('afternoon').value = '';
+
+    // Reset stopwatch nếu là Plank
+    if (document.getElementById('type').value === 'Plank') {
+        resetStopwatch();
+    }
+
+    // ✅ Sau khi lưu, tải lại toàn bộ và dữ liệu của ngày hiện tại
+    fetchFirebaseData().then(() => {
+        loadDataForDate();
+    });
+})
+
         .catch((error) => {
             console.error("Lỗi ghi dữ liệu:", error);
             showStatus("Lỗi khi lưu Firebase!", true);
@@ -624,6 +636,7 @@ window.addEventListener("load", () => {
     fetchFirebaseData();
     updateStopwatchDisplay(); // Khởi tạo hiển thị stopwatch
 });
+
 
 
 
