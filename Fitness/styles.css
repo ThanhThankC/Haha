@@ -164,3 +164,12 @@ input[type="file"] {
 #resetBtn:hover {
     background: linear-gradient(45deg, #545b62, #495057);
 }
+
+#sessionSelect {
+    padding: 8px;
+    background: linear-gradient(45deg, #5f5f5f, #888888);
+    border: 1px solid #555;
+    border-radius: 5px;
+    color: #ffffff;
+    margin-right: 10px;
+}
