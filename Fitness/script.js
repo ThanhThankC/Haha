@@ -610,14 +610,21 @@ function updateCharts() {
     });
 }
 
-// Thêm vào cuối hàm window.addEventListener("load", () => { ... });
-document.getElementById('date').value = new Date().toISOString().split('T')[0];
+window.addEventListener("load", () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+
+    fetchFirebaseData();
+    updateStopwatchDisplay();
+});
+
 
 // Gọi hàm khi load trang để hiển thị dữ liệu Firebase
 window.addEventListener("load", () => {
     fetchFirebaseData();
     updateStopwatchDisplay(); // Khởi tạo hiển thị stopwatch
 });
+
 
 
 
