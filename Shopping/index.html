@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Giá Cả</title>
+    <link rel="icon" type="image/svg+xml"
+    href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red"><path d="M7 4h-2l-1 2H2v2h1l3.6 7.59L5.25 18A1 1 0 0 0 6 20h12v-2H7.42l1.1-2h7.88a1 1 0 0 0 .92-.62L21 6H7l-.75-2z"/></svg>'>
     <style>
         * {
             margin: 0;
@@ -13,7 +15,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -69,8 +71,8 @@
 
         .input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
         }
 
         .date-controls {
@@ -98,10 +100,10 @@
         }
 
         .date-picker-input {
-            width: 60px;
+            width: 49px;
             padding: 12px;
-            border: 2px solid #667eea;
-            background: #667eea;
+            border: 2px solid #ff6b6b;
+            background: #ff6b6b;
             color: white;
             border-radius: 8px;
             cursor: pointer;
@@ -125,14 +127,14 @@
 
         .btn-primary {
             width: 100%;
-            background: #667eea;
+            background: #ff6b6b;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #5568d3;
+            background: #ee5a24;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
         }
 
         .btn-success {
@@ -150,7 +152,7 @@
         }
 
         .btn-sort.active {
-            background: #667eea;
+            background: #ff6b6b;
             color: white;
         }
 
@@ -170,7 +172,7 @@
             border: none;
             font-size: 1.2rem;
             cursor: pointer;
-            color: #667eea;
+            color: #ff6b6b;
             transition: transform 0.2s;
         }
 
@@ -208,6 +210,20 @@
             font-size: 0.9rem;
             font-weight: 500;
             color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-delete {
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .tag-delete:hover {
+            opacity: 1;
         }
 
         .search-container {
@@ -296,7 +312,7 @@
         .item-price {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #667eea;
+            color: #ff6b6b;
             white-space: nowrap;
         }
 
@@ -815,8 +831,11 @@
             const container = document.getElementById('foodTagsList');
             const select = document.getElementById('foodSelect');
             
-            container.innerHTML = foodTags.map(tag => 
-                `<span class="tag" style="background: #667eea">${tag}</span>`
+            container.innerHTML = foodTags.map((tag, index) => 
+                `<span class="tag" style="background: #ff6b6b">
+                    ${tag}
+                    <span class="tag-delete" onclick="deleteFoodTag(${index})">✕</span>
+                </span>`
             ).join('');
             
             select.innerHTML = '<option value="">Chọn món</option>' + 
@@ -827,14 +846,33 @@
             const container = document.getElementById('locationTagsList');
             const select = document.getElementById('locationSelect');
             
-            container.innerHTML = locationTags.map(tag => 
-                `<span class="tag" style="background: ${tag.color}">${tag.name}</span>`
+            container.innerHTML = locationTags.map((tag, index) => 
+                `<span class="tag" style="background: ${tag.color}">
+                    ${tag.name}
+                    <span class="tag-delete" onclick="deleteLocationTag(${index})">✕</span>
+                </span>`
             ).join('');
             
             select.innerHTML = '<option value="">Chọn nơi mua</option>' + 
                 locationTags.map(tag => 
                     `<option value="${tag.name}" data-color="${tag.color}">${tag.name}</option>`
                 ).join('');
+        }
+
+        function deleteFoodTag(index) {
+            if (confirm('Bạn có chắc chắn muốn xóa tag này?')) {
+                foodTags.splice(index, 1);
+                saveToFirebase();
+                renderFoodTags();
+            }
+        }
+
+        function deleteLocationTag(index) {
+            if (confirm('Bạn có chắc chắn muốn xóa tag này?')) {
+                locationTags.splice(index, 1);
+                saveToFirebase();
+                renderLocationTags();
+            }
         }
 
         // Results Functions
