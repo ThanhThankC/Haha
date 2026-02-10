@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gia Đình TV Launcher</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
     <style>
-        /* --- CẤU HÌNH GIAO DIỆN TV --- */
+        /* --- CẤU HÌNH CHUNG --- */
         body {
             background-color: #121212;
             color: white;
@@ -15,7 +19,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh; /* Đổi thành min-height để tránh lỗi hiển thị trên màn hình nhỏ */
+            min-height: 100vh;
         }
 
         h1 {
@@ -27,12 +31,11 @@
             text-shadow: 2px 2px 4px #000;
         }
 
-        /* Khu vực chứa nút điều khiển (Reload) */
         .control-bar {
             width: 90%;
             max-width: 1200px;
             display: flex;
-            justify-content: flex-end; /* Đẩy nút sang phải */
+            justify-content: flex-end;
             margin-bottom: 20px;
         }
 
@@ -53,9 +56,8 @@
             text-decoration: none;
         }
 
-        /* Trạng thái khi chọn nút Reload */
         .btn-reload:focus, .btn-reload:hover {
-            background-color: #2196F3; /* Màu xanh dương khác biệt */
+            background-color: #2196F3;
             color: white;
             transform: scale(1.1);
             border-color: white;
@@ -63,17 +65,15 @@
             outline: none;
         }
 
-        /* Lưới hiển thị các ô */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 Cột */
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             width: 90%;
             max-width: 1200px;
-            padding-bottom: 50px; /* Thêm khoảng trống dưới cùng */
+            padding-bottom: 50px;
         }
 
-        /* Thiết kế từng cái thẻ (Card) */
         .card {
             background-color: #1e1e1e;
             border: 2px solid #333;
@@ -91,17 +91,9 @@
             cursor: pointer;
         }
 
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
+        .card-icon { font-size: 3rem; margin-bottom: 10px; }
+        .card-title { font-size: 1.5rem; font-weight: bold; }
 
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        /* Trạng thái khi focus vào thẻ */
         .card:focus, .card:hover {
             transform: scale(1.05);
             background-color: #4CAF50;
@@ -111,6 +103,54 @@
             z-index: 10;
         }
 
+        /* --- ADMIN PANEL CSS --- */
+        .admin-section {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 2px dashed #444;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .admin-title {
+            color: #FF5722;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .input-group { display: flex; gap: 10px; }
+        
+        #classInput {
+            flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #555;
+            background: #222; color: #fff; font-size: 1.1rem;
+        }
+        #classInput:focus { border-color: #FF5722; outline: none; }
+
+        .btn-add {
+            padding: 0 25px; background: #FF5722; color: white; border: none;
+            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;
+        }
+        .btn-add:hover { background: #E64A19; }
+
+        .tag-container {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; min-height: 50px;
+        }
+
+        .tag-chip {
+            background: #333; border: 1px solid #555; padding: 8px 15px;
+            border-radius: 20px; font-size: 1rem; display: flex; align-items: center; gap: 10px;
+        }
+        .tag-name { color: #eee; font-family: monospace; }
+        .tag-delete {
+            background: #ff4444; color: white; width: 20px; height: 20px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none; font-weight: bold;
+        }
+        #loading { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
@@ -118,16 +158,92 @@
     <h1>📺 Kênh Gia Đình</h1>
 
     <div class="control-bar">
-        <div id="reloadBtn" class="btn-reload" tabindex="0">
-            🔄 Tải lại trang
-        </div>
+        <div id="reloadBtn" class="btn-reload" tabindex="0">🔄 Tải lại trang</div>
     </div>
 
-    <div class="grid-container" id="app">
+    <div class="grid-container" id="app"></div>
+
+    <div class="admin-section">
+        <div class="admin-title">🛡️ Quản lý Chặn Quảng Cáo (Firebase)</div>
+        <div class="input-group">
+            <input type="text" id="classInput" placeholder="Nhập class/id (Ví dụ: .ads-box hoặc #banner)">
+            <button class="btn-add" onclick="addNewClass()">THÊM</button>
         </div>
+        <div id="loading">Đang kết nối Firebase...</div>
+        <div class="tag-container" id="tagList"></div>
+    </div>
 
     <script>
-        // --- CẤU HÌNH DANH SÁCH LINK Ở ĐÂY ---
+        // --- 1. CONFIG & INIT FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyARyxrxmbNLaxSdDP14S5YQES5AJnLj-XU",
+            authDomain: "mylife-ddd6a.firebaseapp.com",
+            databaseURL: "https://mylife-ddd6a-default-rtdb.firebaseio.com",
+            projectId: "mylife-ddd6a",
+            storageBucket: "mylife-ddd6a.firebasestorage.app",
+            messagingSenderId: "969759088030",
+            appId: "1:969759088030:web:69155b992b0cea296e4a8f",
+            measurementId: "G-V80ERR7KWQ"
+        };
+
+        // Khởi tạo (Nhờ dùng bản -compat nên lệnh này mới chạy được)
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+            const blockedRef = db.ref('blocked_classes');
+            
+            // --- LOGIC ADMIN (Kết nối thành công mới chạy) ---
+            const classInput = document.getElementById('classInput');
+            const tagList = document.getElementById('tagList');
+            const loadingText = document.getElementById('loading');
+
+            // Thêm
+            window.addNewClass = function() {
+                const val = classInput.value.trim();
+                if (val) {
+                    blockedRef.push(val);
+                    classInput.value = '';
+                    classInput.focus();
+                }
+            };
+
+            // Xóa
+            window.deleteClass = function(key) {
+                if(confirm("Xóa chặn class này?")) {
+                    blockedRef.child(key).remove();
+                }
+            };
+
+            // Lắng nghe dữ liệu
+            blockedRef.on('value', (snapshot) => {
+                loadingText.style.display = 'none';
+                tagList.innerHTML = '';
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        createTagElement(child.key, child.val());
+                    });
+                } else {
+                    tagList.innerHTML = '<span style="color:#666">Chưa có dữ liệu.</span>';
+                }
+            });
+
+            function createTagElement(key, text) {
+                const div = document.createElement('div');
+                div.className = 'tag-chip';
+                div.innerHTML = `<span class="tag-name">${text}</span><button class="tag-delete" onclick="deleteClass('${key}')">✕</button>`;
+                tagList.appendChild(div);
+            }
+            
+            classInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') addNewClass();
+            });
+
+        } catch (error) {
+            console.error("Lỗi Firebase:", error);
+            document.getElementById('loading').innerHTML = "❌ Lỗi kết nối Firebase (Xem Console F12)";
+        }
+
+        // --- 2. LOGIC GIAO DIỆN TV (Luôn chạy dù Firebase lỗi hay không) ---
         const myLinks = [
             { name: "Bóng Đá (Xôi lạc)", url: "https://childluresprevention.com", icon: "⚽" },
             { name: "Bóng Đá (Thập cẩm)", url: "https://reneopharma.com/", icon: "⚽" },
@@ -137,103 +253,63 @@
             { name: "YouTube", url: "https://www.youtube.com/", icon: "🔴" }
         ];
 
-        // --- CODE XỬ LÝ ---
         const appContainer = document.getElementById('app');
         const reloadBtn = document.getElementById('reloadBtn');
 
-        // 1. Tạo giao diện
         myLinks.forEach((item) => {
             const link = document.createElement('a');
             link.href = item.url;
             link.className = 'card';
             link.setAttribute('tabindex', '0'); 
-            
-            link.innerHTML = `
-                <div class="card-icon">${item.icon}</div>
-                <div class="card-title">${item.name}</div>
-            `;
-
-            // Xử lý bấm OK để mở link
+            link.innerHTML = `<div class="card-icon">${item.icon}</div><div class="card-title">${item.name}</div>`;
             link.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    window.location.href = item.url;
-                }
+                if (e.key === 'Enter') window.location.href = item.url;
             });
-
             appContainer.appendChild(link);
         });
 
-        // 2. Xử lý nút Tải lại (Refresh)
         reloadBtn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                location.reload(); // Lệnh F5
-            }
-            // Nếu đang ở nút Reload mà bấm Xuống -> Nhảy vào ô đầu tiên
+            if (e.key === 'Enter') location.reload();
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                const firstCard = document.querySelector('.card');
-                if (firstCard) firstCard.focus();
+                const first = document.querySelector('.card');
+                if (first) first.focus();
             }
         });
-        
-        // Hỗ trợ bấm chuột cũng ăn
-        reloadBtn.addEventListener('click', () => {
-             location.reload();
-        });
+        reloadBtn.addEventListener('click', () => location.reload());
 
-
-        // 3. Tự động chọn ô đầu tiên khi mở web
         window.onload = function() {
-            const firstCard = document.querySelector('.card');
-            if (firstCard) {
-                firstCard.focus();
-            }
+            const first = document.querySelector('.card');
+            if (first) first.focus();
         };
 
-        // 4. Xử lý điều hướng thông minh (Grid + Nút Reload)
         document.addEventListener('keydown', function(e) {
+            if (document.activeElement === document.getElementById('classInput')) return;
             const cards = Array.from(document.querySelectorAll('.card'));
-            const currentFocus = document.activeElement;
+            const current = document.activeElement;
+            if (current === reloadBtn) return;
             
-            // Nếu đang focus vào nút Reload thì không chạy logic bên dưới
-            if (currentFocus === reloadBtn) return;
-
-            const index = cards.indexOf(currentFocus);
-            
-            // Nếu chưa focus vào đâu cả thì focus cái đầu
+            const index = cards.indexOf(current);
             if (index === -1) { 
                 if(cards.length > 0) cards[0].focus();
                 return;
             }
 
-            let nextIndex = index;
-            const columns = 3; // Số cột
-
-            // LOGIC DI CHUYỂN
-            if (e.key === 'ArrowRight') {
-                nextIndex = index + 1;
-            } else if (e.key === 'ArrowLeft') {
-                nextIndex = index - 1;
-            } else if (e.key === 'ArrowDown') {
-                nextIndex = index + columns;
-            } else if (e.key === 'ArrowUp') {
-                // ĐẶC BIỆT: Nếu đang ở hàng đầu (index < 3) mà bấm Lên -> Nhảy lên nút Reload
-                if (index < columns) {
-                    e.preventDefault();
-                    reloadBtn.focus();
-                    return; // Dừng xử lý grid
-                }
-                nextIndex = index - columns;
+            let next = index;
+            const cols = 3;
+            if (e.key === 'ArrowRight') next = index + 1;
+            else if (e.key === 'ArrowLeft') next = index - 1;
+            else if (e.key === 'ArrowDown') next = index + cols;
+            else if (e.key === 'ArrowUp') {
+                if (index < cols) { e.preventDefault(); reloadBtn.focus(); return; }
+                next = index - cols;
             }
 
-            // Chuyển focus nếu ô tiếp theo hợp lệ
-            if (nextIndex >= 0 && nextIndex < cards.length) {
+            if (next >= 0 && next < cards.length) {
                 e.preventDefault();
-                cards[nextIndex].focus();
+                cards[next].focus();
             }
         });
-
     </script>
 </body>
 </html>
-
