@@ -68,11 +68,19 @@
         }
         
         .form-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
-        input {
+        input[type="text"] {
             padding: 12px; background: #222; border: 1px solid #555; 
             color: white; border-radius: 4px; flex: 1; font-size: 1rem;
         }
         input:focus { border-color: #2196F3; outline: none; }
+
+        /* Checkbox Ignore */
+        .checkbox-container {
+            display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 10px;
+            background: #2a2a2a; padding: 10px; border-radius: 4px; border: 1px dashed #555;
+        }
+        input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #FF9800; }
+        .checkbox-label { cursor: pointer; color: #ddd; font-size: 0.95rem; }
 
         .btn-action {
             padding: 12px 20px; border: none; border-radius: 4px; 
@@ -80,7 +88,7 @@
         }
         .btn-save { background-color: #2196F3; }
         .btn-add { background-color: #4CAF50; }
-        .btn-cancel { background-color: #777; display: none; } /* Nút hủy sửa */
+        .btn-cancel { background-color: #777; display: none; }
         .btn-delete { background-color: #f44336; padding: 5px 10px; margin-left: auto; font-size: 0.8rem;}
         .btn-edit { background-color: #FF9800; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;}
 
@@ -162,12 +170,24 @@
             <div class="suggestion-chip" onclick="pickIcon('https://img.icons8.com/fluency/96/controller.png')">🎮 Game</div>
         </div>
 
-        <input type="hidden" id="editKey"> <div class="form-row">
+        <input type="hidden" id="editKey"> 
+        <div class="form-row">
             <input type="text" id="newItemName" placeholder="Tên mục (VD: Phim hành động)">
             <input type="text" id="newItemIcon" placeholder="Link Icon (hoặc Emoji)">
         </div>
+        
         <div class="form-row">
             <input type="text" id="newItemUrl" placeholder="Link Web (https://...)" oninput="checkUrlLength(this)">
+        </div>
+        
+        <div class="checkbox-container">
+            <input type="checkbox" id="itemIgnore">
+            <label for="itemIgnore" class="checkbox-label">
+                <b>Mở bằng Trình duyệt Web</b> (Tích vào đây nếu trang này không xem được bằng Video Player hoặc muốn chặn bắt link .mp4/.m3u8)
+            </label>
+        </div>
+
+        <div class="form-row">
             <button id="btnSaveItem" class="btn-action btn-add" onclick="handleSaveItem()">THÊM MỚI</button>
             <button id="btnCancelEdit" class="btn-action btn-cancel" onclick="cancelEdit()">HỦY</button>
         </div>
@@ -252,6 +272,7 @@
         const nameInp = document.getElementById('newItemName');
         const urlInp = document.getElementById('newItemUrl');
         const iconInp = document.getElementById('newItemIcon');
+        const ignoreCheck = document.getElementById('itemIgnore'); // Checkbox Mới
         const editKeyInp = document.getElementById('editKey');
         const btnSave = document.getElementById('btnSaveItem');
         const btnCancel = document.getElementById('btnCancelEdit');
@@ -276,12 +297,15 @@
                     appGrid.appendChild(card);
 
                     // 2. Admin List
+                    const isIgnored = item.url.includes('#ignore');
+                    const displayUrl = item.url.replace('#ignore', '');
                     const row = document.createElement('div');
                     row.className = 'admin-item-row';
                     row.innerHTML = `
                         <div class="item-preview">${renderIconHtml(item.icon, true)}</div>
                         <div class="item-info" onclick="startEdit('${key}', '${item.name}', '${item.url}', '${item.icon}')">
-                            <b>${item.name}</b><br><span style="color:#777; font-size:0.8rem">${item.url.substring(0,40)}...</span>
+                            <b>${item.name}</b> ${isIgnored ? '<span style="color:orange; font-size:0.8rem; border:1px solid orange; padding:0 3px; border-radius:3px;">WEB ONLY</span>' : ''}<br>
+                            <span style="color:#777; font-size:0.8rem">${displayUrl.substring(0,40)}...</span>
                         </div>
                         <button class="btn-action btn-edit" onclick="startEdit('${key}', '${item.name}', '${item.url}', '${item.icon}')">SỬA</button>
                         <button class="btn-action btn-delete" onclick="deleteItem('${key}')">XÓA</button>
@@ -311,7 +335,16 @@
         window.startEdit = function(key, name, url, icon) {
             editKeyInp.value = key; // Lưu key vào hidden input
             nameInp.value = name;
-            urlInp.value = url;
+            
+            // Xử lý logic Ignore khi sửa
+            if (url.includes('#ignore')) {
+                ignoreCheck.checked = true;
+                urlInp.value = url.replace('#ignore', ''); // Hiển thị link sạch cho người dùng sửa
+            } else {
+                ignoreCheck.checked = false;
+                urlInp.value = url;
+            }
+
             iconInp.value = icon;
             
             // Đổi giao diện nút
@@ -329,6 +362,8 @@
             nameInp.value = '';
             urlInp.value = '';
             iconInp.value = '';
+            ignoreCheck.checked = false; // Reset checkbox
+            
             btnSave.innerText = "THÊM MỚI";
             btnSave.style.backgroundColor = "#4CAF50"; // Màu xanh
             btnCancel.style.display = "none";
@@ -338,13 +373,21 @@
         // Xử lý Lưu (Thêm mới HOẶC Cập nhật)
         window.handleSaveItem = function() {
             const name = nameInp.value.trim();
-            const url = urlInp.value.trim();
+            let url = urlInp.value.trim();
             const icon = iconInp.value.trim();
             const key = editKeyInp.value;
 
             if (!name || !url) {
                 alert("Thiếu Tên hoặc Link!");
                 return;
+            }
+
+            // LOGIC IGNORE: Tự động thêm đuôi #ignore nếu được tích
+            // Trước tiên xóa #ignore cũ nếu người dùng lỡ tay nhập vào để tránh trùng lặp
+            url = url.replace('#ignore', '');
+            
+            if (ignoreCheck.checked) {
+                url = url + '#ignore';
             }
 
             if (key) {
@@ -408,9 +451,24 @@
 
 
         // --- NAVIGATION ---
+        function triggerReload() {
+            if (window.AndroidApp && window.AndroidApp.reloadApp) {
+                window.AndroidApp.reloadApp();
+            } else {
+                location.reload();
+            }
+        }
+
         const reloadBtn = document.getElementById('reloadBtn');
-        reloadBtn.addEventListener('click', () => location.reload());
-        reloadBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter') location.reload(); });
+        reloadBtn.addEventListener('click', triggerReload);
+        reloadBtn.addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') triggerReload(); 
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const firstCard = document.querySelector('.card');
+                if (firstCard) firstCard.focus();
+            }
+        });
         
         window.onload = function() {
             setTimeout(() => { const f = document.querySelector('.card'); if(f) f.focus(); }, 1500);
@@ -420,10 +478,8 @@
             if (document.activeElement.tagName === 'INPUT') return;
             const cards = Array.from(document.querySelectorAll('.card'));
             const current = document.activeElement;
-            if (current === reloadBtn) {
-                if (e.key === 'ArrowDown') { if(cards.length) cards[0].focus(); e.preventDefault(); }
-                return;
-            }
+            if (current === reloadBtn) return;
+            
             const index = cards.indexOf(current);
             if (index === -1 && cards.length) { cards[0].focus(); return; }
             let next = index; const cols = 3;
