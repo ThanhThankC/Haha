@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gia Đình TV Launcher</title>
-    
+    <title>TV Launcher Admin</title>
+    <link rel="icon" href="https://img.icons8.com/color/48/retro-tv.png" type="image/png">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
@@ -12,7 +12,7 @@
         /* --- CẤU HÌNH CHUNG --- */
         body {
             background-color: #121212;
-            color: white;
+            color: #eee;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
@@ -22,140 +22,112 @@
             min-height: 100vh;
         }
 
-        h1 {
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #4CAF50;
-            text-shadow: 2px 2px 4px #000;
+        /* --- PHẦN 1: GIAO DIỆN TV (PREVIEW) --- */
+        .tv-header-display {
+            display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;
         }
+        #appTitleDisplay {
+            font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;
+            color: #4CAF50; text-shadow: 2px 2px 4px #000; margin: 10px 0;
+        }
+        #appLogoDisplay { max-height: 80px; margin-bottom: 10px; display: none; }
 
-        .control-bar {
-            width: 90%;
-            max-width: 1200px;
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-
-        .btn-reload {
-            background-color: #333;
-            color: #ccc;
-            border: 2px solid #555;
-            padding: 10px 25px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-reload:focus, .btn-reload:hover {
-            background-color: #2196F3;
-            color: white;
-            transform: scale(1.1);
-            border-color: white;
-            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
-            outline: none;
-        }
+        .control-bar { width: 90%; max-width: 1200px; display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        .btn-reload { background: #333; color: #ccc; border: 1px solid #555; padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; }
 
         .grid-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            width: 90%;
-            max-width: 1200px;
-            padding-bottom: 50px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            width: 90%; max-width: 1200px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #333; 
         }
 
         .card {
-            background-color: #1e1e1e;
-            border: 2px solid #333;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            text-decoration: none;
-            color: white;
-            transition: all 0.2s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 150px;
-            cursor: pointer;
+            background: #1e1e1e; border: 2px solid #333; border-radius: 10px;
+            padding: 15px; text-align: center; color: white; height: 140px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-decoration: none; cursor: pointer;
         }
+        .card:focus, .card:hover { background-color: #4CAF50; color: #fff; transform: scale(1.05); }
+        .card-icon-img { width: 220px; height: 120px; object-fit: contain; margin-bottom: 10px; }
+        .card-icon-text { font-size: 7rem; margin-bottom: 5px; }
+        .card-title { font-size: 1.2rem; font-weight: bold; }
 
-        .card-icon { font-size: 3rem; margin-bottom: 10px; }
-        .card-title { font-size: 1.5rem; font-weight: bold; }
+        /* --- KHOẢNG TRỐNG ĐẨY ADMIN XUỐNG --- */
+        .spacer { height: 150px; width: 100%; } 
 
-        .card:focus, .card:hover {
-            transform: scale(1.05);
-            background-color: #4CAF50;
-            border-color: #fff;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
-            outline: none;
-            z-index: 10;
-        }
-
-        /* --- ADMIN PANEL CSS --- */
+        /* --- PHẦN 2: ADMIN GIAO DIỆN --- */
         .admin-section {
-            width: 90%;
-            max-width: 800px;
-            margin-top: 50px;
-            padding: 20px;
-            border-top: 2px dashed #444;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            width: 90%; max-width: 800px; margin-bottom: 40px;
+            padding: 25px; border: 1px solid #444; background: #1a1a1a;
+            border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-
         .admin-title {
-            color: #FF5722;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            text-transform: uppercase;
+            color: #2196F3; font-size: 1.3rem; margin-bottom: 15px; 
+            text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px;
         }
-
-        .input-group { display: flex; gap: 10px; }
         
-        #classInput {
-            flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #555;
-            background: #222; color: #fff; font-size: 1.1rem;
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+        input {
+            padding: 12px; background: #222; border: 1px solid #555; 
+            color: white; border-radius: 4px; flex: 1; font-size: 1rem;
         }
-        #classInput:focus { border-color: #FF5722; outline: none; }
+        input:focus { border-color: #2196F3; outline: none; }
 
-        .btn-add {
-            padding: 0 25px; background: #FF5722; color: white; border: none;
-            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;
+        .btn-action {
+            padding: 12px 20px; border: none; border-radius: 4px; 
+            cursor: pointer; font-weight: bold; color: white; min-width: 80px;
         }
-        .btn-add:hover { background: #E64A19; }
+        .btn-save { background-color: #2196F3; }
+        .btn-add { background-color: #4CAF50; }
+        .btn-cancel { background-color: #777; display: none; } /* Nút hủy sửa */
+        .btn-delete { background-color: #f44336; padding: 5px 10px; margin-left: auto; font-size: 0.8rem;}
+        .btn-edit { background-color: #FF9800; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;}
 
-        .tag-container {
-            display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; min-height: 50px;
+        /* Gợi ý Icon */
+        .icon-suggestions { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .suggestion-chip {
+            background: #333; padding: 5px 10px; border-radius: 15px; cursor: pointer;
+            font-size: 0.85rem; border: 1px solid #444; display: flex; align-items: center; gap: 5px;
         }
+        .suggestion-chip:hover { background: #444; border-color: #888; }
+        .suggestion-chip img { width: 16px; height: 16px; }
 
-        .tag-chip {
-            background: #333; border: 1px solid #555; padding: 8px 15px;
-            border-radius: 20px; font-size: 1rem; display: flex; align-items: center; gap: 10px;
+        /* Cảnh báo Link dài */
+        .warning-text { color: #FFEB3B; font-size: 0.85rem; margin-top: -5px; margin-bottom: 10px; display: none; font-style: italic; }
+
+        /* Danh sách Item */
+        .admin-item-list { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; max-height: 400px; overflow-y: auto; }
+        .admin-item-row {
+            display: flex; align-items: center; background: #2a2a2a; 
+            padding: 10px; border-radius: 4px; gap: 10px; border-left: 3px solid transparent;
         }
-        .tag-name { color: #eee; font-family: monospace; }
-        .tag-delete {
-            background: #ff4444; color: white; width: 20px; height: 20px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: none; font-weight: bold;
+        .admin-item-row:hover { background: #333; border-left-color: #2196F3; }
+        .item-preview { width: 40px; text-align: center; }
+        .item-preview img { width: 30px; height: 30px; object-fit: contain; }
+        .item-info { flex: 1; font-size: 0.95rem; color: #ccc; cursor: pointer; }
+        .item-info b { color: #fff; }
+
+        /* Block Section */
+        .block-section { border-top: 2px dashed #555; margin-top: 20px; padding-top: 20px; }
+        .block-title { color: #FF5722; }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .tag-chip { background: #333; border: 1px solid #555; padding: 5px 12px; border-radius: 15px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .tag-delete-btn { background: none; border: none; color: #ff5555; font-weight: bold; cursor: pointer; font-size: 1rem; }
+
+        @media (max-width: 600px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
+            .form-row { flex-direction: column; align-items: stretch; }
+            .spacer { height: 50px; }
         }
-        #loading { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <h1>📺 Kênh Gia Đình</h1>
+    <div class="tv-header-display">
+        <img id="appLogoDisplay" src="" alt="Logo">
+        <h1 id="appTitleDisplay">...</h1>
+    </div>
 
     <div class="control-bar">
         <div id="reloadBtn" class="btn-reload" tabindex="0">🔄 Tải lại trang</div>
@@ -163,18 +135,65 @@
 
     <div class="grid-container" id="app"></div>
 
+
+    <div class="spacer"></div>
+
+
     <div class="admin-section">
-        <div class="admin-title">🛡️ Quản lý Chặn Quảng Cáo (Firebase)</div>
-        <div class="input-group">
-            <input type="text" id="classInput" placeholder="Nhập class/id (Ví dụ: .ads-box hoặc #banner)">
-            <button class="btn-add" onclick="addNewClass()">THÊM</button>
+        <div class="admin-title">🛠️ Cấu hình App</div>
+        <div class="form-row">
+            <input type="text" id="cfgTitle" placeholder="Tên App (VD: Kênh Gia Đình)">
+            <input type="text" id="cfgLogo" placeholder="Link Logo (Để trống nếu ko cần)">
+            <button class="btn-action btn-save" onclick="saveConfig()">LƯU APP</button>
         </div>
-        <div id="loading">Đang kết nối Firebase...</div>
+    </div>
+
+
+    <div class="admin-section">
+        <div class="admin-title">📺 Quản lý Mục (Phim / Bóng Đá)</div>
+        
+        <div style="font-size: 0.9rem; color:#aaa; margin-bottom:5px;">Chọn nhanh Icon:</div>
+        <div class="icon-suggestions">
+            <div class="suggestion-chip" onclick="pickIcon('https://img.icons8.com/color/96/football2--v1.png')">⚽ Bóng đá</div>
+            <div class="suggestion-chip" onclick="pickIcon('https://img.icons8.com/color/96/movie-projector.png')">🎬 Phim</div>
+            <div class="suggestion-chip" onclick="pickIcon('https://img.icons8.com/color/96/youtube-play.png')">🔴 Youtube</div>
+            <div class="suggestion-chip" onclick="pickIcon('https://img.icons8.com/color/96/retro-tv.png')">📺 TV</div>
+            <div class="suggestion-chip" onclick="pickIcon('https://img.icons8.com/color/96/news.png')">📰 Tin tức</div>
+            <div class="suggestion-chip" onclick="pickIcon('https://img.icons8.com/fluency/96/controller.png')">🎮 Game</div>
+        </div>
+
+        <input type="hidden" id="editKey"> <div class="form-row">
+            <input type="text" id="newItemName" placeholder="Tên mục (VD: Phim hành động)">
+            <input type="text" id="newItemIcon" placeholder="Link Icon (hoặc Emoji)">
+        </div>
+        <div class="form-row">
+            <input type="text" id="newItemUrl" placeholder="Link Web (https://...)" oninput="checkUrlLength(this)">
+            <button id="btnSaveItem" class="btn-action btn-add" onclick="handleSaveItem()">THÊM MỚI</button>
+            <button id="btnCancelEdit" class="btn-action btn-cancel" onclick="cancelEdit()">HỦY</button>
+        </div>
+        <div id="urlWarning" class="warning-text">⚠️ Link quá dài! Cẩn thận nhập nhầm hoặc nên dùng link rút gọn.</div>
+
+        <div class="admin-item-list" id="adminList"></div>
+    </div>
+
+
+    <div class="admin-section block-section">
+        <div class="admin-title block-title">🛡️ Chặn Quảng Cáo (Đồng bộ GitHub)</div>
+        <div class="form-row">
+            <input type="text" id="classInput" placeholder="Nhập class/id (VD: .ads-box)">
+            <button class="btn-action btn-save" style="background: #FF5722" onclick="addNewClass()">THÊM BLOCK</button>
+        </div>
+        <div id="githubStatus" style="color: #888; font-style: italic; margin-top: 5px;">GitHub: Sẵn sàng...</div>
         <div class="tag-container" id="tagList"></div>
     </div>
 
     <script>
-        // --- 1. CONFIG & INIT FIREBASE ---
+        // --- 1. CẤU HÌNH ---
+        const GITHUB_TOKEN = "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"; 
+        const GITHUB_USER = "ThanhThankC";
+        const GITHUB_REPO = "Haha";
+        const GITHUB_FILE_PATH = "AppTV/classblock.txt";
+
         const firebaseConfig = {
             apiKey: "AIzaSyARyxrxmbNLaxSdDP14S5YQES5AJnLj-XU",
             authDomain: "mylife-ddd6a.firebaseapp.com",
@@ -186,130 +205,238 @@
             measurementId: "G-V80ERR7KWQ"
         };
 
-        // Khởi tạo (Nhờ dùng bản -compat nên lệnh này mới chạy được)
-        try {
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.database();
-            const blockedRef = db.ref('blocked_classes');
-            
-            // --- LOGIC ADMIN (Kết nối thành công mới chạy) ---
-            const classInput = document.getElementById('classInput');
-            const tagList = document.getElementById('tagList');
-            const loadingText = document.getElementById('loading');
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const configRef = db.ref('app_config');
+        const linksRef = db.ref('app_links');
+        const blockedRef = db.ref('blocked_classes');
 
-            // Thêm
-            window.addNewClass = function() {
-                const val = classInput.value.trim();
-                if (val) {
-                    blockedRef.push(val);
-                    classInput.value = '';
-                    classInput.focus();
-                }
-            };
-
-            // Xóa
-            window.deleteClass = function(key) {
-                if(confirm("Xóa chặn class này?")) {
-                    blockedRef.child(key).remove();
-                }
-            };
-
-            // Lắng nghe dữ liệu
-            blockedRef.on('value', (snapshot) => {
-                loadingText.style.display = 'none';
-                tagList.innerHTML = '';
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        createTagElement(child.key, child.val());
-                    });
-                } else {
-                    tagList.innerHTML = '<span style="color:#666">Chưa có dữ liệu.</span>';
-                }
-            });
-
-            function createTagElement(key, text) {
-                const div = document.createElement('div');
-                div.className = 'tag-chip';
-                div.innerHTML = `<span class="tag-name">${text}</span><button class="tag-delete" onclick="deleteClass('${key}')">✕</button>`;
-                tagList.appendChild(div);
+        // --- HELPER: Render Icon ---
+        function renderIconHtml(iconVal, isSmall = false) {
+            if (!iconVal) return `<span class="${isSmall?'':'card-icon-text'}">📺</span>`;
+            if (iconVal.includes('http')) {
+                return `<img src="${iconVal}" class="${isSmall?'':'card-icon-img'}" style="${isSmall?'width:24px;height:24px':''}">`;
+            } else {
+                return `<span class="${isSmall?'':'card-icon-text'}" style="${isSmall?'font-size:1.5rem':''}">${iconVal}</span>`;
             }
-            
-            classInput.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') addNewClass();
-            });
-
-        } catch (error) {
-            console.error("Lỗi Firebase:", error);
-            document.getElementById('loading').innerHTML = "❌ Lỗi kết nối Firebase (Xem Console F12)";
         }
 
-        // --- 2. LOGIC GIAO DIỆN TV (Luôn chạy dù Firebase lỗi hay không) ---
-        const myLinks = [
-            { name: "Bóng Đá (Xôi lạc)", url: "https://childluresprevention.com", icon: "⚽" },
-            { name: "Bóng Đá (Thập cẩm)", url: "https://reneopharma.com/", icon: "⚽" },
-            { name: "Phim: Thẩm Phán", url: "https://www.moximovie.click/phim/tham-phan-trung-sinh", icon: "⚖️" },
-            { name: "Phim: Hóa Thân", url: "https://www.moximovie.click/phim/hoa-than", icon: "🎭" },
-            { name: "Phim: Lời hồi đáp", url: "https://www.moximovie.click/phim/loi-hoi-dap-1988", icon: "▶️" },
-            { name: "YouTube", url: "https://www.youtube.com/", icon: "🔴" }
-        ];
-
-        const appContainer = document.getElementById('app');
-        const reloadBtn = document.getElementById('reloadBtn');
-
-        myLinks.forEach((item) => {
-            const link = document.createElement('a');
-            link.href = item.url;
-            link.className = 'card';
-            link.setAttribute('tabindex', '0'); 
-            link.innerHTML = `<div class="card-icon">${item.icon}</div><div class="card-title">${item.name}</div>`;
-            link.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') window.location.href = item.url;
-            });
-            appContainer.appendChild(link);
+        // --- LOGIC 1: APP CONFIG ---
+        configRef.on('value', (snapshot) => {
+            const data = snapshot.val() || { title: "KÊNH GIA ĐÌNH", logo: "" };
+            document.getElementById('appTitleDisplay').innerText = data.title;
+            const logoDisplay = document.getElementById('appLogoDisplay');
+            if (data.logo && data.logo.startsWith('http')) {
+                logoDisplay.src = data.logo;
+                logoDisplay.style.display = 'block';
+            } else {
+                logoDisplay.style.display = 'none';
+            }
+            document.getElementById('cfgTitle').value = data.title;
+            document.getElementById('cfgLogo').value = data.logo;
         });
 
-        reloadBtn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') location.reload();
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                const first = document.querySelector('.card');
-                if (first) first.focus();
+        window.saveConfig = function() {
+            configRef.set({
+                title: document.getElementById('cfgTitle').value.trim() || "KÊNH GIA ĐÌNH",
+                logo: document.getElementById('cfgLogo').value.trim()
+            });
+            alert("Đã lưu cấu hình App!");
+        }
+
+        // --- LOGIC 2: ITEM MANAGER (ADD / EDIT / DELETE) ---
+        const appGrid = document.getElementById('app');
+        const adminList = document.getElementById('adminList');
+        
+        // Inputs
+        const nameInp = document.getElementById('newItemName');
+        const urlInp = document.getElementById('newItemUrl');
+        const iconInp = document.getElementById('newItemIcon');
+        const editKeyInp = document.getElementById('editKey');
+        const btnSave = document.getElementById('btnSaveItem');
+        const btnCancel = document.getElementById('btnCancelEdit');
+        const warnText = document.getElementById('urlWarning');
+
+        // Lấy dữ liệu
+        linksRef.on('value', (snapshot) => {
+            appGrid.innerHTML = '';
+            adminList.innerHTML = '';
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    const key = child.key;
+                    const item = child.val();
+
+                    // 1. Grid TV
+                    const card = document.createElement('a');
+                    card.href = item.url;
+                    card.className = 'card';
+                    card.setAttribute('tabindex', '0');
+                    card.innerHTML = `${renderIconHtml(item.icon)}<div class="card-title">${item.name}</div>`;
+                    card.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.location.href = item.url; });
+                    appGrid.appendChild(card);
+
+                    // 2. Admin List
+                    const row = document.createElement('div');
+                    row.className = 'admin-item-row';
+                    row.innerHTML = `
+                        <div class="item-preview">${renderIconHtml(item.icon, true)}</div>
+                        <div class="item-info" onclick="startEdit('${key}', '${item.name}', '${item.url}', '${item.icon}')">
+                            <b>${item.name}</b><br><span style="color:#777; font-size:0.8rem">${item.url.substring(0,40)}...</span>
+                        </div>
+                        <button class="btn-action btn-edit" onclick="startEdit('${key}', '${item.name}', '${item.url}', '${item.icon}')">SỬA</button>
+                        <button class="btn-action btn-delete" onclick="deleteItem('${key}')">XÓA</button>
+                    `;
+                    adminList.appendChild(row);
+                });
+            } else {
+                adminList.innerHTML = '<div style="color:#666; font-style:italic">Chưa có kênh nào.</div>';
             }
         });
-        reloadBtn.addEventListener('click', () => location.reload());
 
-        window.onload = function() {
-            const first = document.querySelector('.card');
-            if (first) first.focus();
-        };
+        // Chọn nhanh icon
+        window.pickIcon = function(url) {
+            iconInp.value = url;
+        }
 
-        document.addEventListener('keydown', function(e) {
-            if (document.activeElement === document.getElementById('classInput')) return;
-            const cards = Array.from(document.querySelectorAll('.card'));
-            const current = document.activeElement;
-            if (current === reloadBtn) return;
+        // Cảnh báo link dài
+        window.checkUrlLength = function(input) {
+            if (input.value.length > 150) {
+                warnText.style.display = 'block';
+            } else {
+                warnText.style.display = 'none';
+            }
+        }
+
+        // Bắt đầu sửa
+        window.startEdit = function(key, name, url, icon) {
+            editKeyInp.value = key; // Lưu key vào hidden input
+            nameInp.value = name;
+            urlInp.value = url;
+            iconInp.value = icon;
             
-            const index = cards.indexOf(current);
-            if (index === -1) { 
-                if(cards.length > 0) cards[0].focus();
+            // Đổi giao diện nút
+            btnSave.innerText = "LƯU SỬA";
+            btnSave.style.backgroundColor = "#FF9800"; // Màu cam
+            btnCancel.style.display = "inline-block";
+            
+            // Scroll đến form
+            nameInp.focus();
+        }
+
+        // Hủy sửa
+        window.cancelEdit = function() {
+            editKeyInp.value = '';
+            nameInp.value = '';
+            urlInp.value = '';
+            iconInp.value = '';
+            btnSave.innerText = "THÊM MỚI";
+            btnSave.style.backgroundColor = "#4CAF50"; // Màu xanh
+            btnCancel.style.display = "none";
+            warnText.style.display = 'none';
+        }
+
+        // Xử lý Lưu (Thêm mới HOẶC Cập nhật)
+        window.handleSaveItem = function() {
+            const name = nameInp.value.trim();
+            const url = urlInp.value.trim();
+            const icon = iconInp.value.trim();
+            const key = editKeyInp.value;
+
+            if (!name || !url) {
+                alert("Thiếu Tên hoặc Link!");
                 return;
             }
 
-            let next = index;
-            const cols = 3;
+            if (key) {
+                // Đang sửa -> Update
+                linksRef.child(key).update({ name, url, icon });
+            } else {
+                // Không có key -> Thêm mới
+                linksRef.push({ name, url, icon });
+            }
+            cancelEdit(); // Reset form
+        }
+
+        window.deleteItem = function(key) {
+            if (confirm("Chắc chắn xóa?")) {
+                linksRef.child(key).remove();
+                if (editKeyInp.value === key) cancelEdit(); // Nếu đang sửa cái bị xóa thì hủy luôn
+            }
+        }
+
+
+        // --- LOGIC 3: BLOCK LIST (Giữ nguyên) ---
+        const classInput = document.getElementById('classInput');
+        const tagList = document.getElementById('tagList');
+        const statusText = document.getElementById('githubStatus');
+        let currentClasses = [];
+
+        window.addNewClass = function() {
+            const val = classInput.value.trim();
+            if (val) blockedRef.push(val).then(() => { classInput.value = ''; syncToGitHub(); });
+        };
+        window.deleteClass = function(key) {
+            if(confirm("Xóa chặn class này?")) blockedRef.child(key).remove().then(() => syncToGitHub());
+        };
+        blockedRef.on('value', (snapshot) => {
+            tagList.innerHTML = ''; currentClasses = [];
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    const val = child.val(); currentClasses.push(val);
+                    const div = document.createElement('div'); div.className = 'tag-chip';
+                    div.innerHTML = `<span>${val}</span><button class="tag-delete-btn" onclick="deleteClass('${child.key}')">×</button>`;
+                    tagList.appendChild(div);
+                });
+            }
+        });
+        async function syncToGitHub() {
+            statusText.innerText = "⏳ Đang đồng bộ GitHub..."; statusText.style.color = "orange";
+            const contentString = currentClasses.join(", ");
+            const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+            try {
+                const getRes = await fetch(url, { headers: { "Authorization": `Bearer ${GITHUB_TOKEN}` } });
+                let sha = null; if (getRes.ok) { const d = await getRes.json(); sha = d.sha; }
+                const putRes = await fetch(url, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: "Upd", content: btoa(contentString), sha: sha })
+                });
+                if (putRes.ok) { statusText.innerText = "✅ Xong!"; statusText.style.color = "#4CAF50"; }
+                else { statusText.innerText = "❌ Lỗi GitHub"; statusText.style.color = "red"; }
+            } catch (error) { console.error(error); }
+        }
+
+
+        // --- NAVIGATION ---
+        const reloadBtn = document.getElementById('reloadBtn');
+        reloadBtn.addEventListener('click', () => location.reload());
+        reloadBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter') location.reload(); });
+        
+        window.onload = function() {
+            setTimeout(() => { const f = document.querySelector('.card'); if(f) f.focus(); }, 1500);
+        };
+
+        document.addEventListener('keydown', function(e) {
+            if (document.activeElement.tagName === 'INPUT') return;
+            const cards = Array.from(document.querySelectorAll('.card'));
+            const current = document.activeElement;
+            if (current === reloadBtn) {
+                if (e.key === 'ArrowDown') { if(cards.length) cards[0].focus(); e.preventDefault(); }
+                return;
+            }
+            const index = cards.indexOf(current);
+            if (index === -1 && cards.length) { cards[0].focus(); return; }
+            let next = index; const cols = 3;
             if (e.key === 'ArrowRight') next = index + 1;
             else if (e.key === 'ArrowLeft') next = index - 1;
             else if (e.key === 'ArrowDown') next = index + cols;
             else if (e.key === 'ArrowUp') {
-                if (index < cols) { e.preventDefault(); reloadBtn.focus(); return; }
+                if (index < cols) { reloadBtn.focus(); e.preventDefault(); return; }
                 next = index - cols;
             }
-
-            if (next >= 0 && next < cards.length) {
-                e.preventDefault();
-                cards[next].focus();
-            }
+            if (next >= 0 && next < cards.length) { e.preventDefault(); cards[next].focus(); }
         });
+
     </script>
 </body>
 </html>
