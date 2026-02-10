@@ -1,1 +1,1 @@
-.minasd, .gap-2.mb-6.pr-3.py-2, .w-40.h-60, .leading-relaxed.whitespace-pre-line.line-clamp-18, .hi, .ha
+.minasd, .gap-2.mb-6.pr-3.py-2, .w-40.h-60, .leading-relaxed.whitespace-pre-line.line-clamp-18, .ha
