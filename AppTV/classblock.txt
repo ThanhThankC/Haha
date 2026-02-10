@@ -1,1 +1,1 @@
-.w-40.h-60, .w-full, .h-full, .gap-2.mb-6.pr-3.py-2, .leading-relaxed.whitespace-pre-line.line-clamp-18, .main-menu, #catfish-ad, #basketball-tab
+.w-40.h-60, .w-full, .h-full, .gap-2.mb-6.pr-3.py-2, .leading-relaxed.whitespace-pre-line.line-clamp-18, .main-menu, #catfish-ad, #basketball-tab, .group.fixed.bottom-5.left-5
