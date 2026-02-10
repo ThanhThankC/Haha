@@ -7,7 +7,7 @@
     <style>
         /* --- CẤU HÌNH GIAO DIỆN TV --- */
         body {
-            background-color: #121212; /* Màu nền đen dịu mắt */
+            background-color: #121212;
             color: white;
             font-family: Arial, sans-serif;
             margin: 0;
@@ -15,16 +15,52 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh;
-            overflow: hidden; /* Tắt thanh cuộn để nhìn cho đẹp */
+            min-height: 100vh; /* Đổi thành min-height để tránh lỗi hiển thị trên màn hình nhỏ */
         }
 
         h1 {
-            margin-bottom: 30px;
-            font-size: 2.5rem; /* Chữ to cho người già dễ đọc */
+            margin-bottom: 10px;
+            font-size: 2.5rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #4CAF50; /* Màu xanh lá nổi bật */
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        /* Khu vực chứa nút điều khiển (Reload) */
+        .control-bar {
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: flex-end; /* Đẩy nút sang phải */
+            margin-bottom: 20px;
+        }
+
+        .btn-reload {
+            background-color: #333;
+            color: #ccc;
+            border: 2px solid #555;
+            padding: 10px 25px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        /* Trạng thái khi chọn nút Reload */
+        .btn-reload:focus, .btn-reload:hover {
+            background-color: #2196F3; /* Màu xanh dương khác biệt */
+            color: white;
+            transform: scale(1.1);
+            border-color: white;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
+            outline: none;
         }
 
         /* Lưới hiển thị các ô */
@@ -34,6 +70,7 @@
             gap: 20px;
             width: 90%;
             max-width: 1200px;
+            padding-bottom: 50px; /* Thêm khoảng trống dưới cùng */
         }
 
         /* Thiết kế từng cái thẻ (Card) */
@@ -41,9 +78,9 @@
             background-color: #1e1e1e;
             border: 2px solid #333;
             border-radius: 15px;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
-            text-decoration: none; /* Bỏ gạch chân link */
+            text-decoration: none;
             color: white;
             transition: all 0.2s ease-in-out;
             display: flex;
@@ -64,14 +101,13 @@
             font-weight: bold;
         }
 
-        /* --- QUAN TRỌNG NHẤT: TRẠNG THÁI KHI DÙNG ĐIỀU KHIỂN --- */
-        /* Khi remote di chuyển đến ô nào, ô đó sẽ sáng lên */
+        /* Trạng thái khi focus vào thẻ */
         .card:focus, .card:hover {
-            transform: scale(1.1); /* Phóng to lên chút */
-            background-color: #4CAF50; /* Đổi màu nền sang xanh */
-            border-color: #fff; /* Viền trắng sáng */
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6); /* Phát sáng */
-            outline: none; /* Bỏ viền xanh mặc định của Chrome */
+            transform: scale(1.05);
+            background-color: #4CAF50;
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+            outline: none;
             z-index: 10;
         }
 
@@ -81,55 +117,36 @@
 
     <h1>📺 Kênh Gia Đình</h1>
 
+    <div class="control-bar">
+        <div id="reloadBtn" class="btn-reload" tabindex="0">
+            🔄 Tải lại trang
+        </div>
+    </div>
+
     <div class="grid-container" id="app">
         </div>
 
     <script>
         // --- CẤU HÌNH DANH SÁCH LINK Ở ĐÂY ---
-        // Bạn chỉ cần sửa/thêm dòng ở dưới này là xong
         const myLinks = [
-            { 
-                name: "Bóng đá (Vebo TV)", 
-                url: "https://vebozxn.cc", 
-                icon: "⚽" 
-            },
-            { 
-                name: "Bóng Đá (Xôi lạc TV)", 
-                url: "https://emotionalmugger.com/ket-qua-bong-da/", 
-                icon: "⚽" 
-            },
-            { 
-                name: "Bóng Đá (Thập cập TV)", 
-                url: "https://reneopharma.com/", 
-                icon: "⚽" 
-            },
-            { 
-                name: "Phim: Thẩm Phán", 
-                url: "https://www.moximovie.click/phim/tham-phan-trung-sinh", 
-                icon: "⚖️" 
-            },
-            { 
-                name: "Phim: Hóa Thân", 
-                url: "https://www.moximovie.click/phim/hoa-than", 
-                icon: "🎭" 
-            },
-            { 
-                name: "Phim: Lời hồi đáp", 
-                url: "https://www.moximovie.click/phim/loi-hoi-dap-1988", 
-                icon: "▶️" 
-            }
-
+            { name: "Bóng đá (Vebo)", url: "https://vebozxn.cc", icon: "⚽" },
+            { name: "Bóng Đá (Xôi lạc)", url: "https://childluresprevention.com", icon: "⚽" },
+            { name: "Bóng Đá (Thập cẩm)", url: "https://reneopharma.com/", icon: "⚽" },
+            { name: "Phim: Thẩm Phán", url: "https://www.moximovie.click/phim/tham-phan-trung-sinh", icon: "⚖️" },
+            { name: "Phim: Hóa Thân", url: "https://www.moximovie.click/phim/hoa-than", icon: "🎭" },
+            { name: "Phim: Lời hồi đáp", url: "https://www.moximovie.click/phim/loi-hoi-dap-1988", icon: "▶️" },
+            { name: "YouTube", url: "https://www.youtube.com/", icon: "🔴" }
         ];
 
-        // --- CODE XỬ LÝ (KHÔNG CẦN SỬA) ---
+        // --- CODE XỬ LÝ ---
         const appContainer = document.getElementById('app');
+        const reloadBtn = document.getElementById('reloadBtn');
 
-        // 1. Tạo giao diện từ danh sách
-        myLinks.forEach((item, index) => {
+        // 1. Tạo giao diện
+        myLinks.forEach((item) => {
             const link = document.createElement('a');
             link.href = item.url;
             link.className = 'card';
-            // Thêm tab index để remote hiểu đây là vật thể chọn được
             link.setAttribute('tabindex', '0'); 
             
             link.innerHTML = `
@@ -137,7 +154,7 @@
                 <div class="card-title">${item.name}</div>
             `;
 
-            // Xử lý sự kiện bấm OK trên Remote
+            // Xử lý bấm OK để mở link
             link.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     window.location.href = item.url;
@@ -147,7 +164,26 @@
             appContainer.appendChild(link);
         });
 
-        // 2. Tự động chọn ô đầu tiên khi mở web (Để bố bạn đỡ phải bấm nút xuống)
+        // 2. Xử lý nút Tải lại (Refresh)
+        reloadBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                location.reload(); // Lệnh F5
+            }
+            // Nếu đang ở nút Reload mà bấm Xuống -> Nhảy vào ô đầu tiên
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const firstCard = document.querySelector('.card');
+                if (firstCard) firstCard.focus();
+            }
+        });
+        
+        // Hỗ trợ bấm chuột cũng ăn
+        reloadBtn.addEventListener('click', () => {
+             location.reload();
+        });
+
+
+        // 3. Tự động chọn ô đầu tiên khi mở web
         window.onload = function() {
             const firstCard = document.querySelector('.card');
             if (firstCard) {
@@ -155,22 +191,26 @@
             }
         };
 
-        // 3. Xử lý phím điều hướng (Phòng trường hợp TV đời cũ không tự hiểu grid)
-        // Code này giúp bấm nút Sang phải/Trái/Lên/Xuống mượt hơn
+        // 4. Xử lý điều hướng thông minh (Grid + Nút Reload)
         document.addEventListener('keydown', function(e) {
             const cards = Array.from(document.querySelectorAll('.card'));
             const currentFocus = document.activeElement;
+            
+            // Nếu đang focus vào nút Reload thì không chạy logic bên dưới
+            if (currentFocus === reloadBtn) return;
+
             const index = cards.indexOf(currentFocus);
             
-            // Nếu chưa focus vào đâu thì focus cái đầu
+            // Nếu chưa focus vào đâu cả thì focus cái đầu
             if (index === -1) { 
                 if(cards.length > 0) cards[0].focus();
                 return;
             }
 
             let nextIndex = index;
-            const columns = 3; // Số cột mình quy định ở CSS
+            const columns = 3; // Số cột
 
+            // LOGIC DI CHUYỂN
             if (e.key === 'ArrowRight') {
                 nextIndex = index + 1;
             } else if (e.key === 'ArrowLeft') {
@@ -178,19 +218,22 @@
             } else if (e.key === 'ArrowDown') {
                 nextIndex = index + columns;
             } else if (e.key === 'ArrowUp') {
+                // ĐẶC BIỆT: Nếu đang ở hàng đầu (index < 3) mà bấm Lên -> Nhảy lên nút Reload
+                if (index < columns) {
+                    e.preventDefault();
+                    reloadBtn.focus();
+                    return; // Dừng xử lý grid
+                }
                 nextIndex = index - columns;
             }
 
-            // Nếu ô tiếp theo tồn tại thì chuyển focus sang đó
+            // Chuyển focus nếu ô tiếp theo hợp lệ
             if (nextIndex >= 0 && nextIndex < cards.length) {
-                e.preventDefault(); // Chặn hành động cuộn trang mặc định
+                e.preventDefault();
                 cards[nextIndex].focus();
             }
         });
 
     </script>
 </body>
-
 </html>
-
-
