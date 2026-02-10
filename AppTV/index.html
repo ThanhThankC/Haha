@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gia Đình TV Launcher</title>
+    <style>
+        /* --- CẤU HÌNH GIAO DIỆN TV --- */
+        body {
+            background-color: #121212; /* Màu nền đen dịu mắt */
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Tắt thanh cuộn để nhìn cho đẹp */
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5rem; /* Chữ to cho người già dễ đọc */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #4CAF50; /* Màu xanh lá nổi bật */
+        }
+
+        /* Lưới hiển thị các ô */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 Cột */
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        /* Thiết kế từng cái thẻ (Card) */
+        .card {
+            background-color: #1e1e1e;
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none; /* Bỏ gạch chân link */
+            color: white;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+            cursor: pointer;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* --- QUAN TRỌNG NHẤT: TRẠNG THÁI KHI DÙNG ĐIỀU KHIỂN --- */
+        /* Khi remote di chuyển đến ô nào, ô đó sẽ sáng lên */
+        .card:focus, .card:hover {
+            transform: scale(1.1); /* Phóng to lên chút */
+            background-color: #4CAF50; /* Đổi màu nền sang xanh */
+            border-color: #fff; /* Viền trắng sáng */
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6); /* Phát sáng */
+            outline: none; /* Bỏ viền xanh mặc định của Chrome */
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>📺 Kênh Gia Đình</h1>
+
+    <div class="grid-container" id="app">
+        </div>
+
+    <script>
+        // --- CẤU HÌNH DANH SÁCH LINK Ở ĐÂY ---
+        // Bạn chỉ cần sửa/thêm dòng ở dưới này là xong
+        const myLinks = [
+            { 
+                name: "Bóng Đá (Kết quả)", 
+                url: "https://emotionalmugger.com/ket-qua-bong-da/", 
+                icon: "⚽" 
+            },
+            { 
+                name: "Phim: Thẩm Phán", 
+                url: "https://www.moximovie.click/phim/tham-phan-trung-sinh", 
+                icon: "⚖️" 
+            },
+            { 
+                name: "Phim: Hóa Thân", 
+                url: "https://www.moximovie.click/phim/hoa-than", 
+                icon: "🎭" 
+            },
+            { 
+                name: "Trang chủ Phim", 
+                url: "https://reneopharma.com/", 
+                icon: "🎬" 
+            },
+            { 
+                name: "YouTube", 
+                url: "https://www.youtube.com/tv", 
+                icon: "▶️" 
+            },
+            { 
+                name: "VTV Giải Trí", 
+                url: "https://www.vtvgiaitri.vn/", 
+                icon: "📺" 
+            }
+        ];
+
+        // --- CODE XỬ LÝ (KHÔNG CẦN SỬA) ---
+        const appContainer = document.getElementById('app');
+
+        // 1. Tạo giao diện từ danh sách
+        myLinks.forEach((item, index) => {
+            const link = document.createElement('a');
+            link.href = item.url;
+            link.className = 'card';
+            // Thêm tab index để remote hiểu đây là vật thể chọn được
+            link.setAttribute('tabindex', '0'); 
+            
+            link.innerHTML = `
+                <div class="card-icon">${item.icon}</div>
+                <div class="card-title">${item.name}</div>
+            `;
+
+            // Xử lý sự kiện bấm OK trên Remote
+            link.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    window.location.href = item.url;
+                }
+            });
+
+            appContainer.appendChild(link);
+        });
+
+        // 2. Tự động chọn ô đầu tiên khi mở web (Để bố bạn đỡ phải bấm nút xuống)
+        window.onload = function() {
+            const firstCard = document.querySelector('.card');
+            if (firstCard) {
+                firstCard.focus();
+            }
+        };
+
+        // 3. Xử lý phím điều hướng (Phòng trường hợp TV đời cũ không tự hiểu grid)
+        // Code này giúp bấm nút Sang phải/Trái/Lên/Xuống mượt hơn
+        document.addEventListener('keydown', function(e) {
+            const cards = Array.from(document.querySelectorAll('.card'));
+            const currentFocus = document.activeElement;
+            const index = cards.indexOf(currentFocus);
+            
+            // Nếu chưa focus vào đâu thì focus cái đầu
+            if (index === -1) { 
+                if(cards.length > 0) cards[0].focus();
+                return;
+            }
+
+            let nextIndex = index;
+            const columns = 3; // Số cột mình quy định ở CSS
+
+            if (e.key === 'ArrowRight') {
+                nextIndex = index + 1;
+            } else if (e.key === 'ArrowLeft') {
+                nextIndex = index - 1;
+            } else if (e.key === 'ArrowDown') {
+                nextIndex = index + columns;
+            } else if (e.key === 'ArrowUp') {
+                nextIndex = index - columns;
+            }
+
+            // Nếu ô tiếp theo tồn tại thì chuyển focus sang đó
+            if (nextIndex >= 0 && nextIndex < cards.length) {
+                e.preventDefault(); // Chặn hành động cuộn trang mặc định
+                cards[nextIndex].focus();
+            }
+        });
+
+    </script>
+</body>
+</html>
