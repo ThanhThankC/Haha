@@ -421,7 +421,8 @@ function freshInfo(ts){
   if(!ts) return {color:'#8892a4',label:'?',w:'4%'};
   const d=(Date.now()-ts)/86400000;
   let color,label,pct;
-  if(d<=10){color=lerpHex('#3ecf8e','#a8e63a',d/10);label=Math.round(d)+'n';pct=95-d*5}
+  if(Math.round(d) === 0){ color = '#00d4ff';  label = 'Mới'; pct = 100; }
+  else if(d<=10){color=lerpHex('#3ecf8e','#a8e63a',d/10);label=Math.round(d)+'n';pct=95-d*5}
   else if(d<=20){color=lerpHex('#a8e63a','#f5a623',(d-10)/10);label=Math.round(d)+'n';pct=80-(d-10)*2}
   else if(d<=40){color=lerpHex('#f5a623','#f07030',(d-20)/20);label=Math.round(d)+'n';pct=60-(d-20)*1}
   else if(d<=90){color=lerpHex('#f07030','#f06060',(d-40)/50);label=Math.round(d)+'n';pct=40-(d-40)*.4}
@@ -968,3 +969,4 @@ init();
 </body>
 
 </html>
+
