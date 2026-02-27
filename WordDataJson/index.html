@@ -413,7 +413,7 @@ function updateTotalUI() {
   for (const l of S.levels)
     for (const w of (S.localDB[l.id]||[]))
       if (w.createdAt && w.createdAt >= t0.getTime()) nNew++;
-  const txt = total.toLocaleString() + ' từ';
+  const txt = total.toLocaleString();
   ['totalVal','drawerTotalVal'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     // Cập nhật text mà không đụng vào badge span (tránh reset animation)
