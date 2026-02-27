@@ -35,14 +35,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 /* Sidebar search */
 .sb-search{padding:10px 12px 2px}
 .sb-search-wrap{position:relative}
-.sb-search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none}
-#gSearch{width:100%;padding:8px 10px 8px 32px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.sb-search-wrap svg.s-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none}
+#gSearch{width:100%;padding:8px 28px 8px 32px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
 #gSearch:focus{border-color:var(--accent)}
 #gSearch::placeholder{color:var(--text2)}
-.search-hint{font-size:10px;color:var(--accent);padding:4px 4px 0;display:none}
-.search-hint.on{display:flex;align-items:center;gap:6px}
-.search-hint button{background:none;border:none;color:var(--text2);cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px}
-.search-hint button:hover{background:var(--border)}
+.s-clear{position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text2);cursor:pointer;padding:2px;border-radius:4px;display:none;align-items:center;justify-content:center;transition:color .15s}
+.s-clear:hover{color:var(--text)}
+.s-clear.vis{display:flex}
+.drawer-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s;pointer-events:none}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:280px;z-index:201;background:var(--surface);border-right:1px solid var(--border);transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
+.drawer.open{transform:translateX(0)}
+.drawer-close{position:absolute;top:12px;right:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.drawer-close:hover{background:var(--border);color:var(--text)}
+.mob-menu-btn{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:9px;width:36px;height:36px;cursor:pointer;color:var(--text2);align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.mob-menu-btn:hover{background:var(--border);color:var(--text)}
+.mob-search-wrap{display:none;position:relative;flex:1;min-width:0}
+.mob-search-wrap svg.s-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none}
+#gSearchMob{width:100%;padding:7px 28px 7px 30px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+#gSearchMob:focus{border-color:var(--accent)}
+#gSearchMob::placeholder{color:var(--text2)}
 
 /* Nav */
 .nav-section{padding:10px 12px 4px}
@@ -212,20 +224,6 @@ input[type=date]{color-scheme:dark}
 input[type=range]{-webkit-appearance:none; appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
 
-/* ─── DRAWER + MOBILE SEARCH ─── */
-.drawer-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s;pointer-events:none}
-.drawer-overlay.open{opacity:1;pointer-events:all}
-.drawer{position:fixed;left:0;top:0;bottom:0;width:280px;z-index:201;background:var(--surface);border-right:1px solid var(--border);transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
-.drawer.open{transform:translateX(0)}
-.drawer-close{position:absolute;top:12px;right:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:background .15s}
-.drawer-close:hover{background:var(--border);color:var(--text)}
-.mob-menu-btn{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:9px;width:36px;height:36px;cursor:pointer;color:var(--text2);align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
-.mob-menu-btn:hover{background:var(--border);color:var(--text)}
-.mob-search-wrap{display:none;position:relative;flex:1;min-width:0}
-.mob-search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none}
-#gSearchMob{width:100%;padding:7px 10px 7px 30px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
-#gSearchMob:focus{border-color:var(--accent)}
-#gSearchMob::placeholder{color:var(--text2)}
 /* ─── MOBILE ─── */
 @media(max-width:640px){
   .sidebar{display:none}
@@ -409,21 +407,19 @@ async function syncLevel(lid) {
 
 function updateTotalUI() {
   const total = Object.values(S.counts).reduce((a,b) => a+(typeof b==='number'?b:0), 0);
-  // Count words added today (createdAt within last 24h, same calendar day)
-  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-  let newToday = 0;
-  for (const l of S.levels) {
-    for (const w of (S.localDB[l.id]||[])) {
-      if (w.createdAt && w.createdAt >= todayStart.getTime()) newToday++;
-    }
-  }
-  const tv = document.getElementById('totalVal');
-  if(!tv) return;
-  if(newToday >= 1) {
-    tv.innerHTML = total.toLocaleString() + ' từ <span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,#ff3b3b,#ff9d00,#eaff00,#00ff66,#00aeff,#b300ff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rbMove 2.5s linear infinite;white-space:nowrap">(+' + newToday + ')</span>';
-  } else {
-    tv.textContent = total.toLocaleString() + ' từ';
-  }
+  const t0 = new Date(); t0.setHours(0,0,0,0);
+  let nNew = 0;
+  for (const l of S.levels)
+    for (const w of (S.localDB[l.id]||[]))
+      if (w.createdAt && w.createdAt >= t0.getTime()) nNew++;
+  const badge = nNew >= 1
+    ? ' <span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,#ff3b3b,#ff9d00,#eaff00,#00ff66,#00aeff,#b300ff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rbMove 2.5s linear infinite;white-space:nowrap">(+' + nNew + ')</span>'
+    : '';
+  const txt = total.toLocaleString() + ' từ';
+  ['totalVal','drawerTotalVal'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    if(nNew>=1) el.innerHTML=txt+badge; else el.textContent=txt;
+  });
 }
 
 /* ═══════════════ LOCAL SEARCH (0 READS) ═══════════════ */
@@ -493,9 +489,7 @@ function rSidebar(){
   }).join('');
   updateTotalUI();
   if(typeof rDrawer==='function') rDrawer();
-}
-
-function rMain(){
+}function rMain(){
   const main=document.getElementById('mainC');
   const al=S.levels.find(l=>l.id===S.activeLevel);
   const lcolor=al?.color||'#5b8dee';
@@ -519,8 +513,11 @@ function rMain(){
     </button>
     <div class="h-title">${title}</div>
     <div class="mob-search-wrap">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input id="gSearchMob" type="text" placeholder="Tìm từ vựng…" oninput="syncMobSearch(this.value)" value="${S.searchQ}"/>
+      <svg class="s-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="gSearchMob" type="text" placeholder="Tìm từ vựng…" oninput="syncMobSearch(this)" value="${S.searchQ}"/>
+      <button class="s-clear ${S.searchQ?'vis':''}" id="gSearchMobClear" onclick="clearSearch(true,'gSearchMob')" title="Xóa">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="h-actions">
       <button class="btn btn-primary btn-sm" onclick="openAdd()">
@@ -607,7 +604,7 @@ function rCard(w){
 window.selLevel = function(id){
   S.searchMode=false; S.searchQ='';
   document.getElementById('gSearch').value='';
-  document.getElementById('shint').classList.remove('on');
+  // search-hint removed
   S.activeLevel=id;
   S.shownLimit = PAGE;
   setLevelColor(lc(id));
@@ -633,23 +630,49 @@ window.handleSort = function(v){
 };
 
 /* ═══════════════ GLOBAL SEARCH HANDLERS ═══════════════ */
-const dbSearch=debounce(v=>{
-  if(!v.trim()){clearSearch();return;}
+function toggleClearBtn(inp, btnId) {
+  const b = document.getElementById(btnId);
+  if (b) b.classList.toggle('vis', inp.value.length > 0);
+}
+window.onSbSearch = function(inp) {
+  toggleClearBtn(inp, 'gSearchClear');
+  dbSearch(inp.value, 'gSearch');
+};
+window.syncMobSearch = function(inp) {
+  const v = inp.value;
+  const ds = document.getElementById('gSearch');
+  if (ds) { ds.value = v; toggleClearBtn(ds, 'gSearchClear'); }
+  toggleClearBtn(inp, 'gSearchMobClear');
+  dbSearch(v, 'gSearchMob');
+};
+const dbSearch=debounce((v, srcId)=>{
+  if(!v.trim()){ clearSearch(false); return; }
   S.searchQ=v; S.searchMode=true;
-  document.getElementById('shint').classList.add('on');
-  S.shown = doGlobalSearch(v); // Search chay trên RAM
+  S.shown = doGlobalSearch(v);
   rMain(); rSidebar();
+  requestAnimationFrame(()=>{
+    const el = document.getElementById(srcId||'gSearch');
+    if (el) { const n=el.value.length; el.focus(); el.setSelectionRange(n,n); }
+    ['gSearchMob','gSearch'].forEach(id=>{
+      const e=document.getElementById(id);
+      const b=document.getElementById(id==='gSearchMob'?'gSearchMobClear':'gSearchClear');
+      if(e&&b) b.classList.toggle('vis',e.value.length>0);
+    });
+  });
 },200);
-
-window.clearSearch=function(){
+window.clearSearch=function(keepFocus, focusId){
   S.searchMode=false; S.searchQ='';
-  document.getElementById('gSearch').value='';
-  document.getElementById('shint').classList.remove('on');
-  if(S.activeLevel) {
-      S.shownLimit = PAGE;
-      S.shown = getLevelData(S.activeLevel).slice(0, S.shownLimit);
-  }
+  ['gSearch','gSearchMob'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.value='';
+  });
+  ['gSearchClear','gSearchMobClear'].forEach(id=>{
+    const b=document.getElementById(id); if(b) b.classList.remove('vis');
+  });
+  if(S.activeLevel){ S.shownLimit=PAGE; S.shown=getLevelData(S.activeLevel).slice(0,S.shownLimit); }
   rMain(); rSidebar();
+  if(keepFocus!==false) requestAnimationFrame(()=>{
+    const el=document.getElementById(focusId||'gSearch'); if(el) el.focus();
+  });
 };
 
 /* ═══════════════ AUDIO ═══════════════ */
@@ -720,20 +743,8 @@ function showWordModal(w){
       </label>
       <div class="wt-grid" id="wtGrid">${rWTChips()}</div>
     </div>
-    <div class="fg">
-      <label class="flabel">Thẻ tùy chỉnh</label>
-      <div class="tags-wrap" id="tWrap" onclick="document.getElementById('tInp').focus()">
-        ${rTagChips()}
-        <input id="tInp" class="tag-inp" placeholder="Nhập tag, Enter để thêm..." onkeydown="handleTagKey(event)"/>
-      </div>
-    </div>
-    <div class="fg">
-      <label class="flabel">Màu sắc <span style="color:var(--text2);font-size:10px;font-weight:400;text-transform:none">(màu mục được ưu tiên hiển thị)</span></label>
-      <div class="cprow">
-        ${PAL.map(c=>`<div class="cswatch ${mColor===c?'sel':''}" style="background:${c}" onclick="pickColor('${c}')"></div>`).join('')}
-        <input type="color" value="${mColor}" oninput="pickColor(this.value)" style="width:34px;height:24px;padding:0;border-radius:7px;cursor:pointer;border:1px solid var(--border);background:var(--surface2)"/>
-      </div>
-    </div>
+
+
     <div class="mfoot">
       <button class="btn btn-ghost" onclick="closeWM()">Hủy</button>
       <button class="btn btn-primary" onclick="saveWord()">${isEdit?'Lưu thay đổi':'Thêm từ'}</button>
@@ -741,6 +752,22 @@ function showWordModal(w){
   </div>`;
   document.getElementById('wModal').classList.add('open');
 }
+
+// Thêm 2 thẻ này vào dòng 746 nếu cần (không xóa)
+    // <div class="fg">
+    //   <label class="flabel">Thẻ tùy chỉnh</label>
+    //   <div class="tags-wrap" id="tWrap" onclick="document.getElementById('tInp').focus()">
+    //     ${rTagChips()}
+    //     <input id="tInp" class="tag-inp" placeholder="Nhập tag, Enter để thêm..." onkeydown="handleTagKey(event)"/>
+    //   </div>
+    // </div>
+    // <div class="fg">
+    //   <label class="flabel">Màu sắc <span style="color:var(--text2);font-size:10px;font-weight:400;text-transform:none">(màu mục được ưu tiên hiển thị)</span></label>
+    //   <div class="cprow">
+    //     ${PAL.map(c=>`<div class="cswatch ${mColor===c?'sel':''}" style="background:${c}" onclick="pickColor('${c}')"></div>`).join('')}
+    //     <input type="color" value="${mColor}" oninput="pickColor(this.value)" style="width:34px;height:24px;padding:0;border-radius:7px;cursor:pointer;border:1px solid var(--border);background:var(--surface2)"/>
+    //   </div>
+    // </div>
 
 function rWTChips(){
   return S.wtypes.map(t=>{
@@ -922,22 +949,17 @@ window.closeSet=function(){document.getElementById('setModal').classList.remove(
 
 /* ═══════════════ MOBILE DRAWER ═══════════════ */
 function rDrawer(){
-  const nav=document.getElementById('drawerNav');
-  if(!nav) return;
+  const nav=document.getElementById('drawerNav'); if(!nav) return;
   nav.innerHTML=S.levels.map(l=>{
     const cnt=S.counts[l.id]!==undefined?S.counts[l.id]:'…';
     const active=S.activeLevel===l.id&&!S.searchMode;
     return `<button class="lvl-btn ${active?'active':''}" onclick="selLevel('${l.id}');closeDrawer()">
-      <span class="dot" style="background:${l.color}"></span>
-      <span>${esc(l.name)}</span>
-      <span class="cnt">${cnt}</span>
-    </button>`;
+      <span class="dot" style="background:${l.color}"></span><span>${esc(l.name)}</span>
+      <span class="cnt">${cnt}</span></button>`;
   }).join('');
-  const tv=document.getElementById('drawerTotalVal');
-  if(tv){const t=Object.values(S.counts).reduce((a,b)=>a+(typeof b==='number'?b:0),0);tv.textContent=t.toLocaleString()+' từ';}
 }
 window.openDrawer=function(){
-  rDrawer();
+  rDrawer(); updateTotalUI();
   document.getElementById('drawer').classList.add('open');
   document.getElementById('drawerOverlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -946,11 +968,6 @@ window.closeDrawer=function(){
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('drawerOverlay').classList.remove('open');
   document.body.style.overflow='';
-};
-window.syncMobSearch=function(v){
-  const main=document.getElementById('gSearch');
-  if(main) main.value=v;
-  dbSearch(v);
 };
 /* ═══════════════ TOAST ═══════════════ */
 function toast(msg,type=''){
@@ -967,7 +984,7 @@ document.addEventListener('click',e=>{
   });
 });
 
-document.getElementById('gSearch').addEventListener('input',e=>dbSearch(e.target.value));
+// search input handled via oninput attributes
 
 async function init(){
   rSidebar(); 
@@ -986,7 +1003,7 @@ init();
 <!-- ═══════════════ HTML ═══════════════ -->
 <div class="app">
   <aside class="sidebar">
-    <div class="logo">ThankVocab<span>Từ vựng thông minh</span></div>
+    <div class="logo">ThankVocab<span>Đâu có tiếng Anh, đó có Thanh</span></div>
 
     <div class="total-row" id="totalRow">
       <span class="total-lbl">Tổng cộng</span>
@@ -995,13 +1012,11 @@ init();
 
     <div class="sb-search">
       <div class="sb-search-wrap">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="gSearch" type="text" placeholder="Tìm toàn bộ từ vựng…"/>
-      </div>
-      <div class="search-hint" id="shint">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        Đang tìm toàn bộ
-        <button onclick="clearSearch()">✕ Xóa</button>
+        <svg class="s-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="gSearch" type="text" placeholder="Tìm toàn bộ từ vựng…" oninput="onSbSearch(this)"/>
+        <button class="s-clear" id="gSearchClear" onclick="clearSearch(true,'gSearch')" title="Xóa">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
     </div>
 
@@ -1043,31 +1058,15 @@ init();
 </div>
 
 <div class="toast-c" id="toastC"></div>
-
-<!-- ─── MOBILE DRAWER ─── -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
-  <button class="drawer-close" onclick="closeDrawer()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  </button>
-  <div class="logo" style="padding-right:48px">ThankVocab<span>Từ vựng thông minh</span></div>
-  <div class="total-row">
-    <span class="total-lbl">Tổng cộng</span>
-    <span class="total-val" id="drawerTotalVal">… từ</span>
-  </div>
-  <div class="nav-section" style="flex:1;overflow-y:auto">
-    <div class="nav-label">Cấp độ</div>
-    <div id="drawerNav"></div>
-  </div>
+  <button class="drawer-close" onclick="closeDrawer()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <div class="logo" style="padding-right:48px">ThankVocab<span>Đâu có tiếng Anh, đó có Thanh</span></div>
+  <div class="total-row"><span class="total-lbl">Tổng cộng</span><span class="total-val" id="drawerTotalVal">… từ</span></div>
+  <div class="nav-section" style="flex:1;overflow-y:auto"><div class="nav-label">Cấp độ</div><div id="drawerNav"></div></div>
   <div style="padding:12px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border)">
-    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:14px" onclick="openAdd();closeDrawer()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Thêm từ mới
-    </button>
-    <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:13px" onclick="openSettings();closeDrawer()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      Cài đặt cấp độ
-    </button>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:14px" onclick="openAdd();closeDrawer()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm từ mới</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:13px" onclick="openSettings();closeDrawer()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Cài đặt cấp độ</button>
   </div>
 </div>
 </body>
