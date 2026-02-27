@@ -480,7 +480,7 @@ function freshInfo(ts){
   const wordMidnightVN  = Math.floor(tsVN  / 86400000) * 86400000;
   const d = (todayMidnightVN - wordMidnightVN) / 86400000; // số ngày nguyên, tính từ 0
   let color,label,pct;
-  if(d === 0){ color = 'rainbow';  label = 'Mới'; pct = 100; }
+  if(d === 0){ color = 'rainbow';  label = 'New'; pct = 100; }
   else if(d<=10){color=lerpHex('#3ecf8e','#a8e63a',d/10);label=Math.round(d)+'n';pct=95-d*5}
   else if(d<=20){color=lerpHex('#a8e63a','#f5a623',(d-10)/10);label=Math.round(d)+'n';pct=80-(d-10)*2}
   else if(d<=40){color=lerpHex('#f5a623','#f07030',(d-20)/20);label=Math.round(d)+'n';pct=60-(d-20)*1}
@@ -1257,3 +1257,4 @@ init();
 </body>
 
 </html>
+
