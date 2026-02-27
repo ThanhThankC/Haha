@@ -178,16 +178,16 @@ input[type=date]{color-scheme:dark}
 .cswatch:hover,.cswatch.sel{transform:scale(1.18);border-color:white}
 
 /* Color popup */
-.cpop{position:absolute;z-index:300;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;width:196px;box-shadow:0 8px 32px rgba(0,0,0,.55)}
+.cpop{position:fixed;z-index:500;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,.75)}
 
 /* Modal footer */
 .mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
 
 /* Level editor */
-.le-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.le-item .ni{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.le-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.le-item .ni{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%}
 .le-item .ni:focus{border-color:var(--accent)}
-.lc-btn{width:28px;height:28px;border-radius:8px;border:2px solid transparent;cursor:pointer;flex-shrink:0}
+.lc-btn{width:28px;height:28px;border-radius:8px;border:2px solid transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .lc-btn:hover{border-color:white}
 
 /* Phonetic */
@@ -223,6 +223,7 @@ input[type=date]{color-scheme:dark}
 /* Range */
 input[type=range]{-webkit-appearance:none; appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
+
 
 /* ─── MOBILE ─── */
 @media(max-width:640px){
@@ -412,13 +413,32 @@ function updateTotalUI() {
   for (const l of S.levels)
     for (const w of (S.localDB[l.id]||[]))
       if (w.createdAt && w.createdAt >= t0.getTime()) nNew++;
-  const badge = nNew >= 1
-    ? ' <span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,#ff3b3b,#ff9d00,#eaff00,#00ff66,#00aeff,#b300ff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rbMove 2.5s linear infinite;white-space:nowrap">(+' + nNew + ')</span>'
-    : '';
   const txt = total.toLocaleString() + ' từ';
   ['totalVal','drawerTotalVal'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
-    if(nNew>=1) el.innerHTML=txt+badge; else el.textContent=txt;
+    // Cập nhật text mà không đụng vào badge span (tránh reset animation)
+    let textNode = el.childNodes[0];
+    if(!textNode || textNode.nodeType !== Node.TEXT_NODE){
+      // Chưa có text node -> set lại toàn bộ
+      el.innerHTML = '';
+      textNode = document.createTextNode(txt);
+      el.appendChild(textNode);
+    } else {
+      textNode.textContent = txt;
+    }
+    // Tìm hoặc tạo badge span
+    let badge = el.querySelector('.rb-badge');
+    if(nNew >= 1){
+      if(!badge){
+        badge = document.createElement('span');
+        badge.className = 'rb-txt rb-badge';
+        badge.style.cssText = 'font-size:11px;white-space:nowrap;margin-left:3px';
+        el.appendChild(badge);
+      }
+      badge.textContent = '(+' + nNew + ')';
+    } else {
+      if(badge) badge.remove();
+    }
   });
 }
 
@@ -452,9 +472,15 @@ function lerpHex(a,b,t){
 }
 function freshInfo(ts){
   if(!ts) return {color:'#8892a4',label:'?',w:'4%'};
-  const d=(Date.now()-ts)/86400000;
+  // Tính số ngày theo midnight Việt Nam (UTC+7)
+  const VN_OFFSET = 7 * 60 * 60 * 1000;
+  const nowVN = Date.now() + VN_OFFSET;
+  const tsVN  = ts        + VN_OFFSET;
+  const todayMidnightVN = Math.floor(nowVN / 86400000) * 86400000;
+  const wordMidnightVN  = Math.floor(tsVN  / 86400000) * 86400000;
+  const d = (todayMidnightVN - wordMidnightVN) / 86400000; // số ngày nguyên, tính từ 0
   let color,label,pct;
-  if(Math.round(d) === 0){ color = 'rainbow';  label = 'Mới'; pct = 100; }
+  if(d === 0){ color = 'rainbow';  label = 'Mới'; pct = 100; }
   else if(d<=10){color=lerpHex('#3ecf8e','#a8e63a',d/10);label=Math.round(d)+'n';pct=95-d*5}
   else if(d<=20){color=lerpHex('#a8e63a','#f5a623',(d-10)/10);label=Math.round(d)+'n';pct=80-(d-10)*2}
   else if(d<=40){color=lerpHex('#f5a623','#f07030',(d-20)/20);label=Math.round(d)+'n';pct=60-(d-20)*1}
@@ -465,13 +491,21 @@ function freshInfo(ts){
 
 /* ═══════════════ UTILS ═══════════════ */
 const esc = s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const lc  = id=>S.levels.find(l=>l.id===id)?.color||'#5b8dee';
+function getContrastColor(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000 > 140 ? '#1a1a2e' : '#ffffff';
+}
+// Lấy màu badge/bar của level (màu 1 hoặc gradient css string)
+const lc  = id=>{ const l=S.levels.find(l=>l.id===id); return l?.color||'#5b8dee'; };
+const lcGrad = id=>{ const l=S.levels.find(l=>l.id===id); return l?.color2 ? `linear-gradient(135deg,${l.color},${l.color2})` : (l?.color||'#5b8dee'); };
+const lcText = id=>{ const l=S.levels.find(l=>l.id===id); return l?.textColor||(l?.color2?getContrastColor(l.color):'#ffffff'); };
 const ln  = id=>S.levels.find(l=>l.id===id)?.name||id;
 
-function setLevelColor(c){
+function setLevelColor(c, c2){
   document.documentElement.style.setProperty('--level-color',c);
   const vc=document.querySelector('.vc');
-  if(vc) vc.style.background=`linear-gradient(160deg,color-mix(in srgb,${c} 7%,var(--bg)) 0%,var(--bg) 65%)`;
+  const mixC=c2||c;
+  if(vc) vc.style.background=`linear-gradient(160deg,color-mix(in srgb,${mixC} 7%,var(--bg)) 0%,var(--bg) 65%)`;
 }
 
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
@@ -481,8 +515,9 @@ function rSidebar(){
   document.getElementById('lvlNav').innerHTML=S.levels.map(l=>{
     const cnt=S.counts[l.id]!==undefined?S.counts[l.id]:'…';
     const active=S.activeLevel===l.id&&!S.searchMode;
+    const dotStyle=l.color2?`background:linear-gradient(135deg,${l.color},${l.color2})`:`background:${l.color}`;
     return `<button class="lvl-btn ${active?'active':''}" onclick="selLevel('${l.id}')">
-      <span class="dot" style="background:${l.color}"></span>
+      <span class="dot" style="${dotStyle}"></span>
       <span>${esc(l.name)}</span>
       <span class="cnt" id="cnt_${l.id}">${cnt}</span>
     </button>`;
@@ -500,11 +535,12 @@ function rSidebar(){
       return;
   }
   
-  setLevelColor(lcolor);
+  setLevelColor(lcolor, al?.color2);
   const title = S.searchMode ? '🔍 Kết quả tìm kiếm' : (al?.name||'');
   const cnt2 = S.searchMode ? `Tìm thấy: <strong>${S.shown.length}</strong>` : `Tổng: <strong>${S.counts[S.activeLevel]??'?'}</strong> • Hiển thị: <strong>${S.shown.length}</strong>`;
   
   const hasMoreLocal = !S.searchMode && S.localDB[S.activeLevel] && (S.shownLimit < S.localDB[S.activeLevel].length);
+  const mixC=al?.color2||lcolor;
 
   // Kiểm tra xem header đã tồn tại chưa (để không rebuild khi đang focus search mobile)
   const existingHeader = document.getElementById('mainHeader');
@@ -516,7 +552,7 @@ function rSidebar(){
     <div class="h-title">${title}</div>
     <div class="mob-search-wrap">
       <svg class="s-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input id="gSearchMob" type="text" placeholder="Tìm từ vựng…" oninput="syncMobSearch(this)" value="${S.searchQ}"/>
+<input id="gSearchMob" type="text" placeholder="Tìm từ vựng…" oninput="syncMobSearch(this)" value="${S.searchQ}" autocomplete="off" list="searchHistoryList"/>
       <button class="s-clear ${S.searchQ?'vis':''}" id="gSearchMobClear" onclick="clearSearch(true,'gSearchMob')" title="Xóa">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -538,7 +574,7 @@ function rSidebar(){
     </select>
     <span class="cb">${cnt2}</span>
   </div>
-  <div class="vc" id="vcont" style="background:linear-gradient(160deg,color-mix(in srgb,${lcolor} 7%,var(--bg)) 0%,var(--bg) 65%)">
+  <div class="vc" id="vcont" style="background:linear-gradient(160deg,color-mix(in srgb,${mixC} 7%,var(--bg)) 0%,var(--bg) 65%)">
     <div class="vg" id="vgrid">
       ${rWordList()}
     </div>
@@ -582,6 +618,8 @@ function rWordList(){
 function rCard(w){
   const lid=w._lid||S.activeLevel;
   const lcolor=lc(lid);
+  const lgrad=lcGrad(lid);
+  const ltxt=lcText(lid);
   const lname=ln(lid).replace('Cấp ','').replace('Cụm Từ','CT');
   let wd=w.content||'',mng='';
   const ci=wd.indexOf(':');
@@ -604,8 +642,8 @@ function rCard(w){
       </button>`
     :'';
   return `<div class="vcard">
-    <div class="vcard-bar" style="background:${lcolor}"></div>
-    <div class="vcard-badge" style="background:${lcolor}">${esc(lname)}</div>
+    <div class="vcard-bar" style="background:${lgrad}"></div>
+    <div class="vcard-badge" style="background:${lgrad};color:${ltxt}">${esc(lname)}</div>
     <div class="vcard-body">
       <div class="vcard-title">
         <span class="word">${wdHl}</span>${mng?`<span class="meaning"> — ${mngHl}</span>`:''}
@@ -628,11 +666,13 @@ function rCard(w){
 /* ═══════════════ LEVEL SELECT & PAGINATION ═══════════════ */
 window.selLevel = function(id){
   S.searchMode=false; S.searchQ='';
+  if(_autoPlayTimer){clearTimeout(_autoPlayTimer);_autoPlayTimer=null;}
+  if(typeof _historyTimer !== 'undefined' && _historyTimer){clearTimeout(_historyTimer);_historyTimer=null;} // THÊM DÒNG NÀY
   document.getElementById('gSearch').value='';
-  // search-hint removed
   S.activeLevel=id;
   S.shownLimit = PAGE;
-  setLevelColor(lc(id));
+  const lvl=S.levels.find(l=>l.id===id);
+  setLevelColor(lc(id), lvl?.color2);
 
   // Kéo Data từ RAM ra dùng ngay lập tức
   S.shown = getLevelData(id).slice(0, S.shownLimit);
@@ -670,12 +710,28 @@ window.syncMobSearch = function(inp) {
   toggleClearBtn(inp, 'gSearchMobClear');
   dbSearch(v, 'gSearchMob');
 };
+let tempSearchHistory = []; // Mảng lưu lịch sử tạm trên RAM
+
+function updateHistoryUI() {
+  let dl = document.getElementById('searchHistoryList');
+  if (!dl) {
+    // Nếu chưa có datalist thì tạo mới và gắn vào body
+    dl = document.createElement('datalist');
+    dl.id = 'searchHistoryList';
+    document.body.appendChild(dl);
+  }
+  // Đổ dữ liệu từ mảng vào datalist
+  dl.innerHTML = tempSearchHistory.map(w => `<option value="${esc(w)}"></option>`).join('');
+}
+
+let _autoPlayTimer=null;
+let _historyTimer=null; // THÊM BIẾN MỚI
+
 const dbSearch=debounce((v, srcId)=>{
   if(!v.trim()){ clearSearch(true, srcId||'gSearchMob'); return; }
   S.searchQ=v; S.searchMode=true;
   S.shown = doGlobalSearch(v);
   rMain(); rSidebar();
-  // Chỉ cần update clear button, không cần re-focus (header không bị rebuild nữa khi đang focus mobile)
   requestAnimationFrame(()=>{
     ['gSearchMob','gSearch'].forEach(id=>{
       const e=document.getElementById(id);
@@ -683,8 +739,38 @@ const dbSearch=debounce((v, srcId)=>{
       if(e&&b) b.classList.toggle('vis',e.value.length>0);
     });
   });
-},200);
+  
+  // Dọn dẹp cả 2 timer cũ nếu người dùng gõ tiếp
+  if(_autoPlayTimer) clearTimeout(_autoPlayTimer);
+  if(_historyTimer) clearTimeout(_historyTimer);
+
+  // 1. PHÁT AUDIO (1000ms)
+  _autoPlayTimer = setTimeout(()=>{
+    const first = S.shown[0];
+    if(first && first.audioUrl){
+      if(_audioEl){_audioEl.pause();_audioEl=null;document.querySelectorAll('.spk-btn.playing').forEach(b=>b.classList.remove('playing'));}
+      _audioEl=new Audio(first.audioUrl);
+      _audioEl.play().catch(()=>{});
+      _audioEl.onended=()=>{_audioEl=null;};
+      _audioEl.onerror=()=>{_audioEl=null;};
+    }
+  }, 1200);
+
+  // 2. LƯU LỊCH SỬ TÌM KIẾM (1500ms)
+  _historyTimer = setTimeout(()=>{
+    const q = S.searchQ.trim();
+    if (q && !tempSearchHistory.includes(q)) {
+      tempSearchHistory.unshift(q); // Đẩy từ mới lên đầu danh sách
+      if (tempSearchHistory.length > 3) tempSearchHistory.pop(); // Giữ tối đa 3 từ gần nhất
+      updateHistoryUI(); // Cập nhật lại thanh gợi ý
+    }
+  }, 1700);
+
+},300);
+  
 window.clearSearch=function(keepFocus, focusId){
+  if(_autoPlayTimer){clearTimeout(_autoPlayTimer);_autoPlayTimer=null;}
+  if(_historyTimer){clearTimeout(_historyTimer);_historyTimer=null;} // THÊM DÒNG NÀY
   S.searchMode=false; S.searchQ='';
   ['gSearch','gSearchMob'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.value='';
@@ -702,6 +788,7 @@ window.clearSearch=function(keepFocus, focusId){
 
 /* ═══════════════ AUDIO ═══════════════ */
 let _audioEl=null;
+
 window.playAudio=function(e,url){
   e.stopPropagation();
   const btn=e.currentTarget;
@@ -877,7 +964,10 @@ window.saveWord=async function(){
     }
     
     saveLocalDB();
-    if(lid===S.activeLevel && !S.searchMode) {
+    if(S.searchMode){
+      // Trong search mode: re-run search để cập nhật kết quả (bao gồm từ mới/sửa nếu khớp)
+      S.shown = doGlobalSearch(S.searchQ);
+    } else if(lid===S.activeLevel) {
       S.shown = getLevelData(lid).slice(0, S.shownLimit);
     }
     closeWM(); rMain(); rSidebar();
@@ -910,18 +1000,36 @@ window.doDelete=async function(){
 
 /* ═══════════════ SETTINGS ═══════════════ */
 window.openSettings=function(){
-  document.getElementById('setModal').innerHTML=`<div class="modal">
+  document.getElementById('setModal').innerHTML=`<div class="modal" style="width:580px">
     <div class="modal-title">⚙️ Cài đặt cấp độ</div>
+    <div style="display:grid;grid-template-columns:1fr 32px 32px 32px 32px;align-items:center;gap:8px;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:4px">
+      <span style="font-size:10px;color:var(--text2);font-weight:600;letter-spacing:.5px;text-transform:uppercase">Tên cấp độ</span>
+      <span style="font-size:9px;color:var(--text2);text-align:center">Màu 1</span>
+      <span style="font-size:9px;color:var(--text2);text-align:center">Màu 2</span>
+      <span style="font-size:9px;color:var(--text2);text-align:center">Chữ</span>
+      <span></span>
+    </div>
     <div id="leList">
-      ${S.levels.map(l=>`<div class="le-item" data-id="${l.id}">
-        <input class="ni" value="${esc(l.name)}" placeholder="Tên cấp độ"/>
-        <div style="position:relative">
-          <div class="lc-btn" style="background:${l.color}" data-color="${l.color}" onclick="toggleCP(this,'${l.id}')"></div>
-        </div>
-        <button class="iBtn del" onclick="delLevel('${l.id}')" ${S.levels.length<=1?'disabled':''}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-        </button>
-      </div>`).join('')}
+      ${S.levels.map(l=>{
+        const c1=l.color||'#4a9eff', c2=l.color2||c1, ct=l.textColor||getContrastColor(c1);
+        return `<div class="le-item" data-id="${l.id}" style="display:grid;grid-template-columns:1fr 32px 32px 32px 32px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+          <input class="ni" value="${esc(l.name)}" placeholder="Tên cấp độ"/>
+          <div style="position:relative;display:flex;justify-content:center">
+            <div class="lc-btn lc-btn1" style="background:${c1}" data-color="${c1}" title="Màu 1" onclick="toggleCP(this,'${l.id}','color1')"></div>
+          </div>
+          <div style="position:relative;display:flex;justify-content:center">
+            <div class="lc-btn lc-btn2" style="background:${c2}" data-color="${c2}" title="Màu 2" onclick="toggleCP(this,'${l.id}','color2')"></div>
+          </div>
+          <div style="position:relative;display:flex;justify-content:center">
+            <div class="lc-btn lc-btntxt" style="background:${ct};border:2px solid var(--border)" data-color="${ct}" title="Màu chữ" onclick="toggleCP(this,'${l.id}','textColor')">
+              <span style="font-size:9px;font-weight:700;color:${getContrastColor(ct)}">A</span>
+            </div>
+          </div>
+          <button class="iBtn del" onclick="delLevel('${l.id}')" ${S.levels.length<=1?'disabled':''}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>`;
+      }).join('')}
     </div>
     <button class="btn btn-ghost" style="width:100%;margin-top:12px;justify-content:center" onclick="addLevel()">+ Thêm cấp độ</button>
     <div class="mfoot">
@@ -932,23 +1040,51 @@ window.openSettings=function(){
   document.getElementById('setModal').classList.add('open');
 };
 
-window.toggleCP=function(btn,lid){
+window.toggleCP=function(btn,lid,field){
   document.querySelectorAll('.cpop').forEach(p=>p.remove());
-  const cur=btn.dataset.color||'#4a9eff';
+  // field: 'color1','color2','textColor' - cho phép phân biệt loại màu đang chọn
+  const curField = field||'color1';
+  const item=document.querySelector(`[data-id="${lid}"]`);
+  let cur='#4a9eff';
+  if(item){
+    if(curField==='color1') cur=item.querySelector('.lc-btn1')?.dataset.color||'#4a9eff';
+    else if(curField==='color2') cur=item.querySelector('.lc-btn2')?.dataset.color||cur;
+    else if(curField==='textColor') cur=item.querySelector('.lc-btntxt')?.dataset.color||'#ffffff';
+  }
   const pop=document.createElement('div');
   pop.className='cpop';
-  pop.innerHTML=PAL.map(c=>`<div class="cswatch ${cur===c?'sel':''}" style="background:${c};width:22px;height:22px;border-radius:6px" onclick="applyLC(event,'${c}','${lid}')"></div>`).join('')
-    +`<input type="color" value="${cur}" oninput="applyLC(event,this.value,'${lid}')" style="width:100%;height:26px;border:none;border-radius:6px;cursor:pointer;margin-top:4px"/>`;
-  btn.parentElement.appendChild(pop);
+  pop.innerHTML=PAL.map(c=>`<div class="cswatch ${cur===c?'sel':''}" style="background:${c};width:22px;height:22px;border-radius:6px" onclick="applyLC(event,'${c}','${lid}','${curField}')"></div>`).join('')
+    +`<input type="color" value="${cur}" oninput="applyLC(event,this.value,'${lid}','${curField}')" style="width:100%;height:26px;border:none;border-radius:6px;cursor:pointer;margin-top:4px"/>`;
+  document.body.appendChild(pop);
+  // Tính vị trí fixed dựa trên button
+  const rect=btn.getBoundingClientRect();
+  let top=rect.bottom+6, left=rect.left;
+  // Đảm bảo không ra ngoài viewport
+  if(left+220>window.innerWidth) left=window.innerWidth-228;
+  if(top+240>window.innerHeight) top=rect.top-246;
+  pop.style.top=top+'px'; pop.style.left=left+'px';
   setTimeout(()=>document.addEventListener('click',function cl(e){if(!pop.contains(e.target)&&e.target!==btn){pop.remove();document.removeEventListener('click',cl);}},10));
 };
-window.applyLC=function(e,c,lid){
+window.applyLC=function(e,c,lid,field){
   e.stopPropagation();
   const item=document.querySelector(`[data-id="${lid}"]`);
   if(item){
-    const b=item.querySelector('.lc-btn');
-    b.style.background=c; b.dataset.color=c;
-    item.querySelectorAll('.cswatch').forEach(s=>s.classList.toggle('sel',s.style.background===c));
+    const f=field||'color1';
+    if(f==='color1'){
+      const b=item.querySelector('.lc-btn1'); if(b){b.style.background=c;b.dataset.color=c;}
+    } else if(f==='color2'){
+      const b=item.querySelector('.lc-btn2'); if(b){b.style.background=c;b.dataset.color=c;}
+    } else if(f==='textColor'){
+      const b=item.querySelector('.lc-btntxt'); if(b){b.style.background=c;b.dataset.color=c;b.style.color=getContrastColor(c);}
+    }
+    // Cập nhật preview gradient trên dot
+    const btn1=item.querySelector('.lc-btn1'),btn2=item.querySelector('.lc-btn2');
+    if(btn1&&btn2){
+      const c1=btn1.dataset.color, c2=btn2.dataset.color;
+      const preview=item.querySelector('.grad-preview');
+      if(preview) preview.style.background=`linear-gradient(135deg,${c1},${c2})`;
+    }
+    item.querySelectorAll('.cswatch').forEach(s=>s.classList.toggle('sel',s.style.background===c||s.style.backgroundColor===c));
   }
 };
 window.addLevel=function(){
@@ -965,7 +1101,12 @@ window.delLevel=function(id){
 window.saveSet=function(){
   document.querySelectorAll('#leList .le-item').forEach(item=>{
     const id=item.dataset.id,l=S.levels.find(x=>x.id===id);
-    if(l){l.name=item.querySelector('.ni').value.trim()||l.name;l.color=item.querySelector('.lc-btn').dataset.color||l.color;}
+    if(l){
+      l.name=item.querySelector('.ni').value.trim()||l.name;
+      l.color=item.querySelector('.lc-btn1')?.dataset.color||l.color;
+      l.color2=item.querySelector('.lc-btn2')?.dataset.color||l.color;
+      l.textColor=item.querySelector('.lc-btntxt')?.dataset.color||'#ffffff';
+    }
   });
   localStorage.setItem('vv_levels',JSON.stringify(S.levels));
   closeSet(); rMain(); rSidebar(); toast('Đã lưu cài đặt ✓','ok');
@@ -978,8 +1119,9 @@ function rDrawer(){
   nav.innerHTML=S.levels.map(l=>{
     const cnt=S.counts[l.id]!==undefined?S.counts[l.id]:'…';
     const active=S.activeLevel===l.id&&!S.searchMode;
+    const dotStyle=l.color2?`background:linear-gradient(135deg,${l.color},${l.color2})`:`background:${l.color}`;
     return `<button class="lvl-btn ${active?'active':''}" onclick="selLevel('${l.id}');closeDrawer()">
-      <span class="dot" style="background:${l.color}"></span><span>${esc(l.name)}</span>
+      <span class="dot" style="${dotStyle}"></span><span>${esc(l.name)}</span>
       <span class="cnt">${cnt}</span></button>`;
   }).join('');
 }
@@ -1038,7 +1180,7 @@ init();
     <div class="sb-search">
       <div class="sb-search-wrap">
         <svg class="s-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="gSearch" type="text" placeholder="Tìm toàn bộ từ vựng…" oninput="onSbSearch(this)"/>
+        <input id="gSearch" type="text" placeholder="Tìm toàn bộ từ vựng…" oninput="onSbSearch(this)" autocomplete="off" list="searchHistoryList"/>
         <button class="s-clear" id="gSearchClear" onclick="clearSearch(true,'gSearch')" title="Xóa">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
