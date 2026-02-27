@@ -940,14 +940,31 @@ window.saveWord=async function(){
   const data={content,wordTypes:[...mWT],tags:[...mTags],color:mColor,createdAt,updatedAt:Date.now(),phonetic,audioUrl};
   
   try{
+    let affectedLids=[lid]; // Các level cần refresh UI
     if(S.editWord){
-      // 1. Cập nhật Firebase
-      await updateDoc(doc(db,col(S.editLevel),S.editWord.id),data);
-      // 2. Cập nhật RAM LocalDB & Storage
-      if(S.localDB[S.editLevel]){
-        const i=S.localDB[S.editLevel].findIndex(x=>x.id===S.editWord.id);
-        if(i>-1) S.localDB[S.editLevel][i]={...S.localDB[S.editLevel][i],...data};
+      const oldLid=S.editLevel;
+      const newLid=lid;
+      affectedLids=[oldLid,newLid];
+      if(oldLid!==newLid){
+        // Đổi level: xóa ở level cũ, thêm vào level mới
+        await deleteDoc(doc(db,col(oldLid),S.editWord.id));
+        const ref=await addDoc(collection(db,col(newLid)),data);
+        const nw={id:ref.id,...data,_lid:newLid};
+        if(S.localDB[oldLid]) S.localDB[oldLid]=S.localDB[oldLid].filter(x=>x.id!==S.editWord.id);
+        S.counts[oldLid]=Math.max(0,(S.counts[oldLid]||1)-1);
+        if(!S.localDB[newLid]) S.localDB[newLid]=[];
+        S.localDB[newLid].push(nw);
+        S.counts[newLid]=(S.counts[newLid]||0)+1;
+      } else {
+        // Cùng level: update bình thường
+        await updateDoc(doc(db,col(oldLid),S.editWord.id),data);
+        if(S.localDB[oldLid]){
+          const i=S.localDB[oldLid].findIndex(x=>x.id===S.editWord.id);
+          if(i>-1) S.localDB[oldLid][i]={...S.localDB[oldLid][i],...data,_lid:oldLid};
+        }
       }
+      localStorage.setItem('vv_counts',JSON.stringify(S.counts));
+      [oldLid,newLid].forEach(id=>{ const el=document.getElementById('cnt_'+id); if(el) el.textContent=S.counts[id]; });
       toast('Đã cập nhật ✓','ok');
     }else{
       // 1. Thêm mới vào Firebase
@@ -965,10 +982,11 @@ window.saveWord=async function(){
     
     saveLocalDB();
     if(S.searchMode){
-      // Trong search mode: re-run search để cập nhật kết quả (bao gồm từ mới/sửa nếu khớp)
+      // Trong search mode: re-run search để cập nhật kết quả
       S.shown = doGlobalSearch(S.searchQ);
-    } else if(lid===S.activeLevel) {
-      S.shown = getLevelData(lid).slice(0, S.shownLimit);
+    } else if(affectedLids.includes(S.activeLevel)){
+      // Refresh shown nếu đang xem level bị ảnh hưởng
+      S.shown = getLevelData(S.activeLevel).slice(0, S.shownLimit);
     }
     closeWM(); rMain(); rSidebar();
   }catch(e){toast('Lỗi: '+e.message,'err');}
