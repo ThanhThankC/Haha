@@ -646,7 +646,7 @@ window.syncMobSearch = function(inp) {
   dbSearch(v, 'gSearchMob');
 };
 const dbSearch=debounce((v, srcId)=>{
-  if(!v.trim()){ clearSearch(false); return; }
+  if(!v.trim()){ clearSearch(true, srcId||'gSearchMob'); return; }
   S.searchQ=v; S.searchMode=true;
   S.shown = doGlobalSearch(v);
   rMain(); rSidebar();
@@ -671,7 +671,8 @@ window.clearSearch=function(keepFocus, focusId){
   if(S.activeLevel){ S.shownLimit=PAGE; S.shown=getLevelData(S.activeLevel).slice(0,S.shownLimit); }
   rMain(); rSidebar();
   if(keepFocus!==false) requestAnimationFrame(()=>{
-    const el=document.getElementById(focusId||'gSearch'); if(el) el.focus();
+    const el=document.getElementById(focusId||'gSearch');
+    if(el){ el.focus(); const n=el.value.length; el.setSelectionRange(n,n); }
   });
 };
 
