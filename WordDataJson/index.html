@@ -506,8 +506,10 @@ function rSidebar(){
   
   const hasMoreLocal = !S.searchMode && S.localDB[S.activeLevel] && (S.shownLimit < S.localDB[S.activeLevel].length);
 
-  main.innerHTML=`
-  <div class="header">
+  // Kiểm tra xem header đã tồn tại chưa (để không rebuild khi đang focus search mobile)
+  const existingHeader = document.getElementById('mainHeader');
+  const headerHTML = `
+  <div class="header" id="mainHeader">
     <button class="mob-menu-btn" onclick="openDrawer()" title="Menu">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
@@ -524,8 +526,10 @@ function rSidebar(){
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm từ
       </button>
     </div>
-  </div>
-  <div class="toolbar">
+  </div>`;
+
+  const bodyHTML = `
+  <div class="toolbar" id="mainToolbar">
     <span style="font-size:11px;color:var(--text2);font-weight:600">SẮP XẾP:</span>
     <select class="sort-sel" onchange="handleSort(this.value)" ${S.searchMode?'disabled':''}>
       <option value="newest" ${S.sortBy==='newest'?'selected':''}>Mới nhất</option>
@@ -540,6 +544,27 @@ function rSidebar(){
     </div>
     ${hasMoreLocal ? `<button class="lm-btn" onclick="loadMore()">Tải thêm ${PAGE} từ...</button>` : ''}
   </div>`;
+
+  // Nếu search mobile đang active (focus), chỉ update body, giữ nguyên header
+  const mobSearchFocused = document.activeElement && document.activeElement.id === 'gSearchMob';
+  if (existingHeader && mobSearchFocused) {
+    // Chỉ update phần toolbar + content, không đụng vào header chứa input đang focus
+    const existingToolbar = document.getElementById('mainToolbar');
+    const existingVcont = document.getElementById('vcont');
+    if (existingToolbar && existingVcont) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = bodyHTML;
+      existingToolbar.replaceWith(tempDiv.querySelector('#mainToolbar'));
+      document.getElementById('vcont').replaceWith(tempDiv.querySelector('#vcont'));
+      // Update title nếu cần
+      const htitle = existingHeader.querySelector('.h-title');
+      if (htitle) htitle.textContent = title.replace(/🔍 /, '🔍 ');
+    } else {
+      main.innerHTML = headerHTML + bodyHTML;
+    }
+  } else {
+    main.innerHTML = headerHTML + bodyHTML;
+  }
 }
 
 function rWordList(){
@@ -650,9 +675,8 @@ const dbSearch=debounce((v, srcId)=>{
   S.searchQ=v; S.searchMode=true;
   S.shown = doGlobalSearch(v);
   rMain(); rSidebar();
+  // Chỉ cần update clear button, không cần re-focus (header không bị rebuild nữa khi đang focus mobile)
   requestAnimationFrame(()=>{
-    const el = document.getElementById(srcId||'gSearch');
-    if (el) { const n=el.value.length; el.focus(); el.setSelectionRange(n,n); }
     ['gSearchMob','gSearch'].forEach(id=>{
       const e=document.getElementById(id);
       const b=document.getElementById(id==='gSearchMob'?'gSearchMobClear':'gSearchClear');
