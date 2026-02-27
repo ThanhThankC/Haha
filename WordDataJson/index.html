@@ -243,6 +243,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   .modal{border-radius:16px 16px 0 0;max-height:88vh;width:100%;max-width:100%}
   .frow{flex-direction:column;gap:0}
 }
+  /* ─── RAINBOW ANIMATION ─── */
+.rb-bg {
+  background: linear-gradient(90deg, #ff3b3b, #ff9d00, #eaff00, #00ff66, #00aeff, #b300ff, #ff3b3b);
+  background-size: 200% auto;
+  animation: rbMove 2.5s linear infinite;
+}
+.rb-txt {
+  background: linear-gradient(90deg, #ff3b3b, #ff9d00, #eaff00, #00ff66, #00aeff, #b300ff, #ff3b3b);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rbMove 2.5s linear infinite;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+@keyframes rbMove { to { background-position: 200% center; } }
 </style>
 </head>
 <body>
@@ -421,7 +438,7 @@ function freshInfo(ts){
   if(!ts) return {color:'#8892a4',label:'?',w:'4%'};
   const d=(Date.now()-ts)/86400000;
   let color,label,pct;
-  if(Math.round(d) === 0){ color = '#00d4ff';  label = 'Mới'; pct = 100; }
+  if(Math.round(d) === 0){ color = 'rainbow';  label = 'Mới'; pct = 100; }
   else if(d<=10){color=lerpHex('#3ecf8e','#a8e63a',d/10);label=Math.round(d)+'n';pct=95-d*5}
   else if(d<=20){color=lerpHex('#a8e63a','#f5a623',(d-10)/10);label=Math.round(d)+'n';pct=80-(d-10)*2}
   else if(d<=40){color=lerpHex('#f5a623','#f07030',(d-20)/20);label=Math.round(d)+'n';pct=60-(d-20)*1}
@@ -969,4 +986,5 @@ init();
 </body>
 
 </html>
+
 
