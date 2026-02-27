@@ -215,54 +215,34 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 /* ─── MOBILE ─── */
 @media(max-width:500px){
   .app{flex-direction:column;height:100dvh}
-  .sidebar{
-    width:100%;min-width:unset;
-    border-right:none;border-bottom:1px solid var(--border);
-    /* Fixed compact height — show logo+total+search+nav in ~180px */
-    flex-shrink:0;
-    display:grid;
-    grid-template-rows:auto auto auto 1fr auto; /* logo|total|search|nav|bottom */
-    max-height:220px;
-    overflow:hidden;
-  }
-  /* Logo + total: single line each, compact */
-  .logo{padding:10px 14px 8px;font-size:17px}
-  .total-row{padding:3px 14px 5px}
-  .sb-search{padding:5px 10px 3px}
-  /* Nav: horizontal scroll, takes remaining space */
-  .nav-section{padding:4px 10px 4px;overflow:hidden}
-  #lvlNav{
-    display:flex;gap:5px;
-    overflow-x:auto;overflow-y:hidden;
-    padding-bottom:6px;
-    scrollbar-width:none;
-    -webkit-overflow-scrolling:touch;
-    flex-wrap:nowrap;
-  }
+  .sidebar{width:100%;min-width:unset;border-right:none;border-bottom:1px solid var(--border);flex-shrink:0;overflow:hidden;display:flex;flex-direction:column}
+  .logo{padding:8px 14px;font-size:16px;border-bottom:none}
+  .logo span{display:none}
+  .total-row{padding:2px 14px 4px;border-bottom:none}
+  .total-lbl{font-size:9px}
+  .total-val{font-size:11px}
+  .sb-search{padding:4px 10px 2px}
+  #gSearch{padding:6px 10px 6px 30px;font-size:12px}
+  .nav-section{padding:4px 10px 6px;overflow:hidden}
+  .nav-label{display:none}
+  #lvlNav{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
   #lvlNav::-webkit-scrollbar{display:none}
-  .lvl-btn{
-    flex-shrink:0;padding:6px 10px;font-size:12px;
-    white-space:nowrap;min-width:fit-content;
-    border-radius:20px;
-  }
-  .lvl-btn .cnt{min-width:20px;font-size:10px;padding:1px 5px}
-  /* Bottom: hide settings, keep add button accessible */
-  .sb-bottom{padding:5px 10px 7px;border-top:1px solid var(--border)}
-  .sb-bottom .btn{padding:7px 12px;font-size:12px}
-
-  /* Main area takes rest of screen */
+  .lvl-btn{flex-shrink:0;padding:5px 10px;font-size:12px;white-space:nowrap;border-radius:20px}
+  .lvl-btn .cnt{min-width:18px;font-size:10px;padding:1px 5px}
+  .sb-bottom{display:none}
   .main{flex:1;overflow:hidden;min-height:0}
-  .header{padding:8px 12px;gap:8px}
-  .h-title{font-size:16px}
-  .h-actions .btn-primary{padding:6px 10px;font-size:12px}
-  .toolbar{padding:6px 12px;gap:6px}
+  .header{padding:8px 12px;gap:8px;flex-wrap:nowrap}
+  .h-title{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .h-actions{flex-shrink:0}
+  .h-actions .btn-primary{padding:6px 11px;font-size:12px}
+  .toolbar{padding:5px 12px;gap:6px}
+  .cb{font-size:10px}
   .vc{padding:8px 10px}
-  .vcard{padding:9px 11px;gap:9px}
-  .vcard-badge{width:24px;height:24px;font-size:8px}
+  .vcard{padding:9px 10px;gap:9px}
+  .vcard-badge{width:23px;height:23px;font-size:8px}
   .vcard-title{font-size:13px}
   .cactions{opacity:1}
   .iBtn{width:30px;height:30px}
-  /* Modal slides up from bottom */
   .moverlay{align-items:flex-end}
   .modal{border-radius:16px 16px 0 0;max-height:90dvh;width:100%;max-width:100%}
   .frow{flex-direction:column;gap:0}
@@ -586,10 +566,7 @@ function rCard(w){
       </div>
       ${(phonetic||spkBtn)?`<div style="display:flex;align-items:center;gap:7px;margin-top:3px">${phonetic}${spkBtn}</div>`:''}
       <div class="vcard-meta">${ttags}${ctags}${dt?`<span class="dtxt">${dt}</span>`:''}</div>
-      ${w.createdAt?`<div class="fbar-wrap">${fr.color==='rainbow'
-        ?`<div class="fbar rb-bg" style="width:${fr.w};max-width:80px"></div><span class="flbl rb-txt">${fr.label}</span>`
-        :`<div class="fbar" style="background:${fr.color};width:${fr.w};max-width:80px"></div><span class="flbl" style="color:${fr.color}">${fr.label}</span>`
-      }</div>`:''}
+      ${w.createdAt?`<div class="fbar-wrap"><div class="fbar" style="background:${fr.color};width:${fr.w};max-width:80px"></div><span class="flbl" style="color:${fr.color}">${fr.label}</span></div>`:''}
     </div>
     <div class="cactions">
       <button class="iBtn" title="Sửa" onclick="openEdit('${w.id}','${lid}')">
