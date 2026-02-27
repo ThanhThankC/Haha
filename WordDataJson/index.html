@@ -212,32 +212,39 @@ input[type=date]{color-scheme:dark}
 input[type=range]{-webkit-appearance:none; appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
 
+/* ─── DRAWER + MOBILE SEARCH ─── */
+.drawer-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s;pointer-events:none}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:280px;z-index:201;background:var(--surface);border-right:1px solid var(--border);transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
+.drawer.open{transform:translateX(0)}
+.drawer-close{position:absolute;top:12px;right:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.drawer-close:hover{background:var(--border);color:var(--text)}
+/* Hamburger button — hidden on desktop */
+.mob-menu-btn{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:9px;width:36px;height:36px;cursor:pointer;color:var(--text2);align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.mob-menu-btn:hover{background:var(--border);color:var(--text)}
+/* Inline search in header — hidden on desktop */
+.mob-search-wrap{display:none;position:relative;flex:1;min-width:0}
+.mob-search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none}
+#gSearchMob{width:100%;padding:7px 10px 7px 30px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+#gSearchMob:focus{border-color:var(--accent)}
+#gSearchMob::placeholder{color:var(--text2)}
+
 /* ─── MOBILE ─── */
-@media(max-width:500px){
-  .app{flex-direction:column;height:100dvh}
-  .sidebar{width:100%;min-width:unset;border-right:none;border-bottom:1px solid var(--border);flex-shrink:0;overflow:hidden;display:flex;flex-direction:column}
-  .logo{padding:8px 14px;font-size:16px;border-bottom:none}
-  .logo span{display:none}
-  .total-row{padding:2px 14px 4px;border-bottom:none}
-  .total-lbl{font-size:9px}
-  .total-val{font-size:11px}
-  .sb-search{padding:4px 10px 2px}
-  #gSearch{padding:6px 10px 6px 30px;font-size:12px}
-  .nav-section{padding:4px 10px 6px;overflow:hidden}
-  .nav-label{display:none}
-  #lvlNav{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
-  #lvlNav::-webkit-scrollbar{display:none}
-  .lvl-btn{flex-shrink:0;padding:5px 10px;font-size:12px;white-space:nowrap;border-radius:20px}
-  .lvl-btn .cnt{min-width:18px;font-size:10px;padding:1px 5px}
-  .sb-bottom{display:none}
-  .main{flex:1;overflow:hidden;min-height:0}
-  .header{padding:8px 12px;gap:8px;flex-wrap:nowrap}
-  .h-title{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .h-actions{flex-shrink:0}
-  .h-actions .btn-primary{padding:6px 11px;font-size:12px}
-  .toolbar{padding:5px 12px;gap:6px}
+@media(max-width:640px){
+  .sidebar{display:none}
+  .app{height:100dvh}
+  .main{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+  .mob-menu-btn{display:flex}
+  .mob-search-wrap{display:block}
+  .drawer-overlay{display:block}
+  /* Header: ☰  [search input fills space]  [+ Thêm từ] */
+  .header{padding:8px 10px;gap:7px;flex-wrap:nowrap}
+  .h-title{display:none}
+  .h-actions .btn-primary{padding:6px 10px;font-size:12px;white-space:nowrap;flex-shrink:0}
+  .toolbar{padding:5px 12px;gap:6px;flex-wrap:nowrap}
+  .sort-sel{font-size:11px;padding:4px 7px}
   .cb{font-size:10px}
-  .vc{padding:8px 10px}
+  .vc{padding:8px 10px;flex:1;overflow-y:auto}
   .vcard{padding:9px 10px;gap:9px}
   .vcard-badge{width:23px;height:23px;font-size:8px}
   .vcard-title{font-size:13px}
@@ -476,6 +483,7 @@ function rSidebar(){
     </button>`;
   }).join('');
   updateTotalUI();
+  if(typeof rDrawer==='function') rDrawer();
 }
 
 function rMain(){
@@ -497,7 +505,14 @@ function rMain(){
 
   main.innerHTML=`
   <div class="header">
+    <button class="mob-menu-btn" onclick="openDrawer()" title="Menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <div class="h-title">${title}</div>
+    <div class="mob-search-wrap">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="gSearchMob" type="text" placeholder="Tìm từ vựng…" oninput="syncMobSearch(this.value)" value="${S.searchQ}"/>
+    </div>
     <div class="h-actions">
       <button class="btn btn-primary btn-sm" onclick="openAdd()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm từ
@@ -566,7 +581,7 @@ function rCard(w){
       </div>
       ${(phonetic||spkBtn)?`<div style="display:flex;align-items:center;gap:7px;margin-top:3px">${phonetic}${spkBtn}</div>`:''}
       <div class="vcard-meta">${ttags}${ctags}${dt?`<span class="dtxt">${dt}</span>`:''}</div>
-      ${w.createdAt?`<div class="fbar-wrap"><div class="fbar" style="background:${fr.color};width:${fr.w};max-width:80px"></div><span class="flbl" style="color:${fr.color}">${fr.label}</span></div>`:''}
+      ${w.createdAt?`<div class="fbar-wrap">${fr.color==='rainbow'?`<div class="fbar rb-bg" style="width:${fr.w};max-width:80px"></div><span class="flbl rb-txt">${fr.label}</span>`:`<div class="fbar" style="background:${fr.color};width:${fr.w};max-width:80px"></div><span class="flbl" style="color:${fr.color}">${fr.label}</span>`}</div>`:''}
     </div>
     <div class="cactions">
       <button class="iBtn" title="Sửa" onclick="openEdit('${w.id}','${lid}')">
@@ -896,6 +911,40 @@ window.saveSet=function(){
 };
 window.closeSet=function(){document.getElementById('setModal').classList.remove('open');};
 
+/* ═══════════════ MOBILE DRAWER ═══════════════ */
+function rDrawer(){
+  const nav=document.getElementById('drawerNav');
+  if(!nav) return;
+  nav.innerHTML=S.levels.map(l=>{
+    const cnt=S.counts[l.id]!==undefined?S.counts[l.id]:'…';
+    const active=S.activeLevel===l.id&&!S.searchMode;
+    return `<button class="lvl-btn ${active?'active':''}" onclick="selLevel('${l.id}');closeDrawer()">
+      <span class="dot" style="background:${l.color}"></span>
+      <span>${esc(l.name)}</span>
+      <span class="cnt">${cnt}</span>
+    </button>`;
+  }).join('');
+  const tv=document.getElementById('drawerTotalVal');
+  if(tv){const t=Object.values(S.counts).reduce((a,b)=>a+(typeof b==='number'?b:0),0);tv.textContent=t.toLocaleString()+' từ';}
+}
+window.openDrawer=function(){
+  rDrawer();
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+};
+window.closeDrawer=function(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow='';
+};
+// Sync inline mobile search → main search engine
+window.syncMobSearch=function(v){
+  const main=document.getElementById('gSearch');
+  if(main) main.value=v;
+  dbSearch(v);
+};
+
 /* ═══════════════ TOAST ═══════════════ */
 function toast(msg,type=''){
   const el=Object.assign(document.createElement('div'),{className:`toast ${type}`,textContent:msg});
@@ -987,6 +1036,33 @@ init();
 </div>
 
 <div class="toast-c" id="toastC"></div>
+
+<!-- ─── MOBILE DRAWER ─── -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <button class="drawer-close" onclick="closeDrawer()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="logo" style="padding-right:48px">VocabVault<span>Từ vựng thông minh</span></div>
+  <div class="total-row">
+    <span class="total-lbl">Tổng cộng</span>
+    <span class="total-val" id="drawerTotalVal">… từ</span>
+  </div>
+  <div class="nav-section" style="flex:1;overflow-y:auto">
+    <div class="nav-label">Cấp độ</div>
+    <div id="drawerNav"></div>
+  </div>
+  <div style="padding:12px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border)">
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:14px" onclick="openAdd();closeDrawer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Thêm từ mới
+    </button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:13px" onclick="openSettings();closeDrawer()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Cài đặt cấp độ
+    </button>
+  </div>
+</div>
 </body>
 
 </html>
