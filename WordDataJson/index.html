@@ -102,7 +102,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 /* Card */
 .vcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s,background .15s;position:relative;overflow:hidden}
 .vcard:hover{background:var(--surface2);border-color:color-mix(in srgb,var(--level-color) 55%,var(--border))}
-.vcard-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.vcard-bar{position:absolute;left:0;top:0;bottom:0;width:7px;border-radius:3px 0 0 3px}
 .vcard-badge{width:27px;height:27px;border-radius:8px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;letter-spacing:-.3px}
 .vcard-body{flex:1;min-width:0}
 .vcard-title{font-size:15px;font-weight:600;line-height:1.4}
@@ -214,6 +214,39 @@ input[type=date]{color-scheme:dark}
 @keyframes tin{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes tout{from{opacity:1}to{opacity:0}}
 
+/* ─── WORD FAMILY ─── */
+.wf-group{display:flex;flex-direction:column;gap:0}
+.wf-child{display:flex;align-items:flex-start;gap:0;position:relative}
+.wf-indent-line{flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.wf-vline{width:2px;background:var(--border);flex:1;margin-left:18px}
+.wf-hline{width:14px;height:2px;background:var(--border);margin-top:16px;flex-shrink:0}
+.wf-child-wrap{flex:1;min-width:0;padding-top:5px}
+.vcard.depth-1{transform:scale(0.97);transform-origin:left center;opacity:0.82}
+.vcard.depth-2{transform:scale(0.94);transform-origin:left center;opacity:0.68}
+.vcard.depth-3{transform:scale(0.91);transform-origin:left center;opacity:0.55}
+.depth-1 .vcard-title .word{font-size:14px}
+.depth-2 .vcard-title .word{font-size:13px}
+.depth-3 .vcard-title .word{font-size:12px}
+.wf-connector{display:flex;padding-left:4px;margin-bottom:0}
+.wf-connector-inner{display:flex;flex-direction:column;align-items:flex-start;margin-right:4px}
+
+.iBtn.wf-has-parent{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--border))}
+
+/* Set Parent Modal */
+.sp-modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;width:420px;max-width:96vw;max-height:80vh;display:flex;flex-direction:column;gap:10px}
+.sp-search-wrap{position:relative}
+.sp-search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none}
+.sp-inp{width:100%;padding:9px 12px 9px 34px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.sp-inp:focus{border-color:var(--accent)}
+.sp-results{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;min-height:60px;max-height:320px}
+.sp-item{padding:9px 12px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:center;gap:10px}
+.sp-item:hover{background:var(--border);border-color:var(--accent)}
+.sp-item-word{font-size:13px;font-weight:600;color:var(--text)}
+.sp-item-meta{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace}
+.sp-none-btn{padding:9px 12px;border-radius:9px;background:none;border:2px dashed var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:border-color .15s,color .15s;font-family:'DM Sans',sans-serif;text-align:left;display:flex;align-items:center;gap:8px}
+.sp-none-btn:hover{border-color:var(--red);color:var(--red)}
+.sp-hint{font-size:11px;color:var(--text2);text-align:center;padding:12px 0;opacity:.6}
+
 /* Scrollbar */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -248,6 +281,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   .moverlay{align-items:flex-end}
   .modal{border-radius:16px 16px 0 0;max-height:90dvh;width:100%;max-width:100%}
   .frow{flex-direction:column;gap:0}
+  /* Mobile: cây gia đình gọn hơn — depth 2+ không indent sâu, thu nhỏ card */
+  .wf-mobile-child{margin-left:10px!important;padding-left:4px!important;border-left:2px solid var(--border)}
+  .vcard.depth-2,.vcard.depth-3{transform:none;opacity:1}
+  .vcard.depth-2 .vcard-title .word,.vcard.depth-3 .vcard-title .word{font-size:12px}
+  .vcard.depth-2,.vcard.depth-3{padding:6px 8px;gap:7px}
+  .vcard.depth-2 .vcard-badge,.vcard.depth-3 .vcard-badge{width:18px;height:18px;font-size:7px}
+  .vcard.depth-2 .fbar-wrap,.vcard.depth-3 .fbar-wrap{display:none}
+  .vcard.depth-2 .vcard-meta .dtxt,.vcard.depth-3 .vcard-meta .dtxt{display:none}
 }
   /* ─── RAINBOW ANIMATION ─── */
 .rb-bg {
@@ -263,7 +304,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   -webkit-text-fill-color: transparent;
   animation: rbMove 2.5s linear infinite;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: none;
 }
 @keyframes rbMove { to { background-position: 200% center; } }
 </style>
@@ -481,11 +522,11 @@ function freshInfo(ts){
   const d = (todayMidnightVN - wordMidnightVN) / 86400000; // số ngày nguyên, tính từ 0
   let color,label,pct;
   if(d === 0){ color = 'rainbow';  label = 'New'; pct = 100; }
-  else if(d<=10){color=lerpHex('#3ecf8e','#a8e63a',d/10);label=Math.round(d)+'n';pct=95-d*5}
-  else if(d<=20){color=lerpHex('#a8e63a','#f5a623',(d-10)/10);label=Math.round(d)+'n';pct=80-(d-10)*2}
-  else if(d<=40){color=lerpHex('#f5a623','#f07030',(d-20)/20);label=Math.round(d)+'n';pct=60-(d-20)*1}
-  else if(d<=90){color=lerpHex('#f07030','#f06060',(d-40)/50);label=Math.round(d)+'n';pct=40-(d-40)*.4}
-  else{color='#f06060';label=Math.floor(d/30)+'th';pct=8}
+  else if(d<=10){color=lerpHex('#3ecf8e','#a8e63a',d/10);label=Math.round(d)+'d';pct=95-d*5}
+  else if(d<=20){color=lerpHex('#a8e63a','#f5a623',(d-10)/10);label=Math.round(d)+'d';pct=80-(d-10)*2}
+  else if(d<=40){color=lerpHex('#f5a623','#f07030',(d-20)/20);label=Math.round(d)+'d';pct=60-(d-20)*1}
+  else if(d<=90){color=lerpHex('#f07030','#f06060',(d-40)/50);label=Math.round(d)+'d';pct=40-(d-40)*.4}
+  else{color='#f06060';label=Math.floor(d/30)+'m';pct=8}
   return {color,label,w:Math.max(5,Math.round(pct))+'%'};
 }
 
@@ -505,7 +546,7 @@ function setLevelColor(c, c2){
   document.documentElement.style.setProperty('--level-color',c);
   const vc=document.querySelector('.vc');
   const mixC=c2||c;
-  if(vc) vc.style.background=`linear-gradient(160deg,color-mix(in srgb,${mixC} 7%,var(--bg)) 0%,var(--bg) 65%)`;
+  if(vc) vc.style.background=`linear-gradient(160deg,color-mix(in srgb,${mixC} 17%,var(--bg)) 0%,var(--bg) 65%)`;
 }
 
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
@@ -574,7 +615,7 @@ function rSidebar(){
     </select>
     <span class="cb">${cnt2}</span>
   </div>
-  <div class="vc" id="vcont" style="background:linear-gradient(160deg,color-mix(in srgb,${mixC} 7%,var(--bg)) 0%,var(--bg) 65%)">
+  <div class="vc" id="vcont" style="background:linear-gradient(160deg,color-mix(in srgb,${mixC} 17%,var(--bg)) 0%,var(--bg) 65%)">
     <div class="vg" id="vgrid">
       ${rWordList()}
     </div>
@@ -606,16 +647,86 @@ function rSidebar(){
 function rWordList(){
   if(!S.shown.length) return `<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><h3>Chưa có từ vựng nào</h3><p>Nhấn "Thêm từ" để bắt đầu</p></div>`;
   let h='';
-  if(S.searchMode) h+=`<div class="s-banner">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <span>Kết quả cho <strong>"${esc(S.searchQ)}"</strong> — ${S.shown.length} từ</span>
-    <button onclick="clearSearch()">✕ Xóa</button>
-  </div>`;
-  h+=S.shown.map(w=>rCard(w)).join('');
+  if(S.searchMode){
+    h+=`<div class="s-banner">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Kết quả cho <strong>"${esc(S.searchQ)}"</strong> — ${S.shown.length} từ</span>
+      <button onclick="clearSearch()">✕ Xóa</button>
+    </div>`;
+    h += rWordFamily(S.shown); // cây bậc thang chỉ khi search
+  } else {
+    h += S.shown.map(w=>rCard(w,0)).join(''); // flat list bình thường
+  }
   return h;
 }
 
-function rCard(w){
+// Build a flat list with family-tree structure (depth-aware, bậc thang)
+function rWordFamily(words){
+  // Build children map from ALL localDB first (needed for sort + render)
+  const childrenMap = {};
+  for(const l of S.levels){
+    for(const w of (S.localDB[l.id]||[])){
+      if(w.parentId){
+        if(!childrenMap[w.parentId]) childrenMap[w.parentId]=[];
+        childrenMap[w.parentId].push(w);
+      }
+    }
+  }
+
+  // Determine which words in our list are already children of other words in our list
+  const shownIds = new Set(words.map(w=>w.id));
+  // roots = words whose parent is NOT in our shown list (or has no parent)
+  let roots = words.filter(w => !w.parentId || !shownIds.has(w.parentId));
+
+  // Sort roots by the newest createdAt in their subtree (so newest family group floats up)
+  function maxCreatedAt(w){
+    let m = w.createdAt||0;
+    for(const c of (childrenMap[w.id]||[])) m = Math.max(m, maxCreatedAt(c));
+    return m;
+  }
+  roots = roots.slice().sort((a,b) => maxCreatedAt(b) - maxCreatedAt(a));
+
+  function renderNode(w, depth){
+    const card = rCard(w, depth);
+    let children = (childrenMap[w.id]||[]);
+    // Chỉ hiện children có trong shown list (hoặc children của từ matched)
+    children = children.filter(c => shownIds.has(c.id) || shownIds.has(w.id));
+
+    if(!children.length){
+      // Leaf node
+      if(depth === 0) return `<div style="margin-bottom:0">${card}</div>`;
+      return card;
+    }
+
+    // Node có children — render đệ quy
+    const indent = 20 + depth * 4; // indent tăng nhẹ theo depth
+    const childrenHTML = `<div class="${depth>=1?'wf-mobile-child':''}" style="margin-left:${indent}px;margin-top:5px;display:flex;flex-direction:column;gap:5px;padding-left:8px">`
+      + children.map(c => renderNode(c, depth+1)).join('')
+      + `</div>`;
+
+    return `<div>${card}${childrenHTML}</div>`;
+  }
+
+  let out = '<div style="display:flex;flex-direction:column;gap:8px">';
+  // Avoid duplicates (children already rendered under parents)
+  const rendered = new Set();
+  function collectIds(w){
+    rendered.add(w.id);
+    (childrenMap[w.id]||[]).forEach(c=>collectIds(c));
+  }
+  for(const r of roots){
+    out += renderNode(r,0,false);
+    collectIds(r);
+  }
+  // Any orphan words that weren't rendered (parent exists but not in list)
+  for(const w of words){
+    if(!rendered.has(w.id)) out += renderNode(w,0,false);
+  }
+  out += '</div>';
+  return out;
+}
+
+function rCard(w, depth=0){
   const lid=w._lid||S.activeLevel;
   const lcolor=lc(lid);
   const lgrad=lcGrad(lid);
@@ -641,18 +752,37 @@ function rCard(w){
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>`
     :'';
-  return `<div class="vcard">
+  const depthClass = depth > 0 ? ` depth-${Math.min(depth,3)}` : '';
+  // Check if this word has children (across all levels)
+  let hasChildren = false;
+  for(const l of S.levels){ if((S.localDB[l.id]||[]).some(x=>x.parentId===w.id)){hasChildren=true;break;} }
+  const familyIcon = hasChildren
+    ? `<span title="Word Family" style="font-size:10px;color:var(--accent);opacity:0.7;margin-left:4px">🌿</span>` : '';
+  const parentInfo = w.parentId ? (() => {
+    let par = null;
+    for(const l of S.levels){ par=(S.localDB[l.id]||[]).find(x=>x.id===w.parentId); if(par)break; }
+    if(!par) return '';
+    const pw = par.content?.split(':')[0]?.trim()||'';
+    return `<span style="font-size:10px;color:var(--text2);opacity:.7;margin-left:6px">↳ ${esc(pw)}</span>`;
+  })() : '';
+  return `<div class="vcard${depthClass}">
     <div class="vcard-bar" style="background:${lgrad}"></div>
     <div class="vcard-badge" style="background:${lgrad};color:${ltxt}">${esc(lname)}</div>
     <div class="vcard-body">
       <div class="vcard-title">
-        <span class="word">${wdHl}</span>${mng?`<span class="meaning"> — ${mngHl}</span>`:''}
+        <span class="word">${wdHl}</span>${mng?`<span class="meaning"> — ${mngHl}</span>`:''}${familyIcon}${depth===0&&w.parentId?parentInfo:''}
       </div>
       ${(phonetic||spkBtn)?`<div style="display:flex;align-items:center;gap:7px;margin-top:3px">${phonetic}${spkBtn}</div>`:''}
       <div class="vcard-meta">${ttags}${ctags}${dt?`<span class="dtxt">${dt}</span>`:''}</div>
       ${w.createdAt?`<div class="fbar-wrap">${fr.color==='rainbow'?`<div class="fbar rb-bg" style="width:${fr.w};max-width:80px"></div><span class="flbl rb-txt">${fr.label}</span>`:`<div class="fbar" style="background:${fr.color};width:${fr.w};max-width:80px"></div><span class="flbl" style="color:${fr.color}">${fr.label}</span>`}</div>`:''}
     </div>
     <div class="cactions">
+      <button class="iBtn" title="Thêm từ cha mới (Word Family)" onclick="openAddParent('${w.id}','${lid}')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+      </button>
+      <button class="iBtn ${w.parentId?'wf-has-parent':''}" title="Gắn từ cha có sẵn (Word Family)" onclick="openSetParentModal('${w.id}','${lid}')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </button>
       <button class="iBtn" title="Sửa" onclick="openEdit('${w.id}','${lid}')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
@@ -821,7 +951,7 @@ window.openEdit=function(id,lid){
 
 function showWordModal(w){
   const isEdit=!!w.id;
-  const tLid=isEdit?S.editLevel:(S.activeLevel||S.levels[0]?.id);
+  const tLid=w._forceLevel||(isEdit?S.editLevel:(S.activeLevel||S.levels[0]?.id));
   const dv=w.createdAt?new Date(w.createdAt).toISOString().split('T')[0]:new Date().toISOString().split('T')[0];
   document.getElementById('wModal').innerHTML=`<div class="modal">
     <div class="modal-title">${isEdit?'✏️ Sửa từ vựng':'✨ Thêm từ mới'}</div>
@@ -926,7 +1056,146 @@ window.addWType=function(){
     if(g) g.innerHTML=rWTChips();
   }
 };
-window.closeWM=function(){document.getElementById('wModal').classList.remove('open');};
+window.closeWM=function(){
+  document.getElementById('wModal').classList.remove('open');
+  _pendingChildId=null; _pendingChildLid=null;
+};
+
+/* ═══════════════ WORD FAMILY — ADD NEW PARENT ═══════════════ */
+let _pendingChildId = null, _pendingChildLid = null;
+
+window.openAddParent = function(childId, childLid){
+  _pendingChildId = childId;
+  _pendingChildLid = childLid;
+  S.editWord = null;
+  S.editLevel = childLid;
+  mWT=[]; mTags=[]; mColor=lc(childLid);
+  // Mở modal với cấp độ hiện tại của từ con — user tự chọn cấp cha
+  showWordModal({_forceLevel: childLid});
+  requestAnimationFrame(()=>{
+    const modal = document.querySelector('#wModal .modal');
+    if(!modal) return;
+    let childName='';
+    for(const l of S.levels){ const cw=(S.localDB[l.id]||[]).find(x=>x.id===childId); if(cw){childName=(cw.content||'').split(':')[0].trim();break;} }
+    // Hint thông tin
+    const hint = document.createElement('div');
+    hint.style.cssText='background:color-mix(in srgb,var(--accent) 12%,var(--surface2));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:9px;padding:8px 12px;font-size:12px;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:8px';
+    hint.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>🌿 Từ mới này sẽ thành <strong>từ cha</strong> của "<strong>${esc(childName)}</strong>"`;
+    const titleEl = modal.querySelector('.modal-title');
+    if(titleEl) titleEl.after(hint);
+    // Cảnh báo đỏ khi chọn lại cấp độ của từ con
+    const lvlSel = modal.querySelector('#mLvl');
+    const warnEl = document.createElement('div');
+    warnEl.id = 'apLvlWarn';
+    warnEl.style.cssText='display:none;background:color-mix(in srgb,var(--red) 12%,var(--surface2));border:1px solid color-mix(in srgb,var(--red) 50%,var(--border));border-radius:8px;padding:7px 11px;font-size:12px;color:var(--red);margin-top:5px;display:none;align-items:center;gap:7px';
+    warnEl.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Từ cha nên ở cấp độ cao hơn từ con (<strong>${esc(S.levels.find(l=>l.id===childLid)?.name||childLid)}</strong>)!`;
+    if(lvlSel){
+      lvlSel.parentNode.appendChild(warnEl);
+      // Hiện cảnh báo ngay từ đầu vì cấp mặc định là cấp của từ con
+      warnEl.style.display = 'flex';
+      lvlSel.style.borderColor = 'var(--red)';
+      lvlSel.addEventListener('change', function(){
+        const show = this.value === childLid;
+        warnEl.style.display = show ? 'flex' : 'none';
+        lvlSel.style.borderColor = show ? 'var(--red)' : '';
+      });
+    }
+  });
+};
+
+/* ═══════════════ WORD FAMILY — SET EXISTING PARENT MODAL ═══════════════ */
+let _spChildId = null, _spChildLid = null;
+
+window.openSetParentModal = function(childId, childLid){
+  _spChildId = childId; _spChildLid = childLid;
+  let childName='';
+  for(const l of S.levels){ const cw=(S.localDB[l.id]||[]).find(x=>x.id===childId); if(cw){childName=(cw.content||'').split(':')[0].trim();break;} }
+  const overlay = document.getElementById('spModal');
+  overlay.innerHTML=`<div class="sp-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+      <div style="font-family:'Playfair Display',serif;font-size:16px">🌿 Gắn từ cha cho "<strong>${esc(childName)}</strong>"</div>
+      <button onclick="closeSpModal()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <button class="sp-none-btn" onclick="setParentId('${childId}','${childLid}','');closeSpModal();toast('Đã đặt là từ độc lập','ok')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      None — Đặt là từ độc lập (xóa cha hiện tại)
+    </button>
+    <div class="sp-search-wrap">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="spInp" class="sp-inp" placeholder="Tìm từ cha… (gõ ít nhất 1 ký tự)" oninput="spSearch(this.value,'${childId}')" autocomplete="off"/>
+    </div>
+    <div class="sp-results" id="spResults"><div class="sp-hint">Gõ để tìm từ muốn đặt làm cha</div></div>
+  </div>`;
+  overlay.classList.add('open');
+  requestAnimationFrame(()=>document.getElementById('spInp')?.focus());
+};
+
+window.closeSpModal = function(){ document.getElementById('spModal').classList.remove('open'); };
+
+window.spSearch = function(q, excludeId){
+  const res = document.getElementById('spResults');
+  if(!res) return;
+  const trimQ = q.trim().toLowerCase();
+  if(!trimQ){ res.innerHTML='<div class="sp-hint">Gõ để tìm từ muốn đặt làm cha</div>'; return; }
+  // Build set of IDs that already have children (marked with 🌿) — exclude them
+  const idsWithChildren = new Set();
+  for(const l of S.levels){
+    for(const w of (S.localDB[l.id]||[])){
+      if(w.parentId) idsWithChildren.add(w.parentId);
+    }
+  }
+  let hits = [];
+  for(const l of S.levels){
+    for(const w of (S.localDB[l.id]||[])){
+      if(w.id===excludeId) continue;
+      if(idsWithChildren.has(w.id)) continue; // Ẩn từ đã có con (🌿)
+      if((w.content||'').toLowerCase().includes(trimQ)) hits.push({w,l});
+    }
+  }
+  hits.sort((a,b)=>{
+    const ai=(a.w.content||'').toLowerCase().indexOf(trimQ);
+    const bi=(b.w.content||'').toLowerCase().indexOf(trimQ);
+    return ai!==bi?ai-bi:(b.w.createdAt||0)-(a.w.createdAt||0);
+  });
+  hits = hits.slice(0,30);
+  if(!hits.length){ res.innerHTML='<div class="sp-hint">Không tìm thấy từ nào</div>'; return; }
+  res.innerHTML = hits.map(({w,l})=>{
+    const wd=(w.content||'').split(':')[0].trim();
+    const mn=(w.content||'').includes(':')?(w.content||'').split(':').slice(1).join(':').trim():'';
+    return `<div class="sp-item" onclick="setParentId('${_spChildId}','${_spChildLid}','${w.id}');closeSpModal();toast('Đã gắn từ cha ✓','ok')">
+      <div style="flex:1;min-width:0">
+        <div class="sp-item-word">${esc(wd)}${mn?`<span style="color:var(--text2);font-weight:400"> — ${esc(mn.slice(0,40))}${mn.length>40?'…':''}</span>`:''}</div>
+        <div class="sp-item-meta">[${l.id}] ${l.name}</div>
+      </div>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`;
+  }).join('');
+};
+
+/* ═══════════════ SET PARENT HELPER ═══════════════ */
+window.setParentId = async function(childId, childLid, parentId){
+  // Find the child word in localDB
+  let found = false;
+  for(const l of S.levels){
+    const arr = S.localDB[l.id]||[];
+    const idx = arr.findIndex(x=>x.id===childId);
+    if(idx>-1){
+      arr[idx].parentId = parentId;
+      arr[idx].updatedAt = Date.now();
+      // Write to Firebase
+      try{
+        await updateDoc(doc(db,col(l.id),childId),{parentId,updatedAt:arr[idx].updatedAt});
+      }catch(e){ toast('Lỗi cập nhật: '+e.message,'err'); return; }
+      found=true; break;
+    }
+  }
+  if(!found) return;
+  saveLocalDB();
+  // Refresh UI
+  if(S.searchMode) S.shown=doGlobalSearch(S.searchQ);
+  else if(S.activeLevel) S.shown=getLevelData(S.activeLevel).slice(0,S.shownLimit);
+  rMain();
+};;
 
 /* ═══════════════ SAVE LOGIC (WRITE-THROUGH) ═══════════════ */
 window.saveWord=async function(){
@@ -934,10 +1203,14 @@ window.saveWord=async function(){
   if(!content){toast('Vui lòng nhập nội dung','err');return;}
   const lid=document.getElementById('mLvl')?.value||S.activeLevel;
   const dv=document.getElementById('mDate')?.value;
-  const createdAt=dv?new Date(dv).getTime():Date.now();
+  // Từ mới: luôn dùng Date.now() để giữ thứ tự chính xác theo giờ thêm vào.
+  // Chỉ parse ngày từ input khi đang edit (để không thay đổi ngày gốc).
+  const createdAt=S.editWord?(dv?new Date(dv).getTime():Date.now()):Date.now();
   const phonetic=document.getElementById('mPhonetic')?.value?.trim()||'';
   const audioUrl=document.getElementById('mAudio')?.value?.trim()||'';
-  const data={content,wordTypes:[...mWT],tags:[...mTags],color:mColor,createdAt,updatedAt:Date.now(),phonetic,audioUrl};
+  // parentId is managed via Word Family buttons, preserve existing value on edit
+  const existingParentId = S.editWord?.parentId||'';
+  const data={content,wordTypes:[...mWT],tags:[...mTags],color:mColor,createdAt,updatedAt:Date.now(),phonetic,audioUrl,parentId:existingParentId};
   
   try{
     let affectedLids=[lid]; // Các level cần refresh UI
@@ -978,6 +1251,24 @@ window.saveWord=async function(){
       localStorage.setItem('vv_counts',JSON.stringify(S.counts));
       const el=document.getElementById('cnt_'+lid); if(el) el.textContent=S.counts[lid];
       toast('Đã thêm từ mới ✓','ok');
+
+      // Nếu đang thêm cha mới qua openAddParent, gắn parentId cho con ngay
+      if(_pendingChildId){
+        const cId=_pendingChildId, cLid=_pendingChildLid;
+        _pendingChildId=null; _pendingChildLid=null;
+        // Cập nhật parentId của con = id từ vừa thêm
+        for(const l of S.levels){
+          const arr=S.localDB[l.id]||[];
+          const idx=arr.findIndex(x=>x.id===cId);
+          if(idx>-1){
+            arr[idx].parentId=ref.id;
+            arr[idx].updatedAt=Date.now();
+            try{ await updateDoc(doc(db,col(l.id),cId),{parentId:ref.id,updatedAt:arr[idx].updatedAt}); }
+            catch(e){ toast('Lỗi gắn cha: '+e.message,'err'); }
+            break;
+          }
+        }
+      }
     }
     
     saveLocalDB();
@@ -1163,7 +1454,7 @@ function toast(msg,type=''){
 
 /* ═══════════════ INIT ═══════════════ */
 document.addEventListener('click',e=>{
-  ['wModal','setModal','cfmModal'].forEach(id=>{
+  ['wModal','setModal','cfmModal','spModal'].forEach(id=>{
     const el=document.getElementById(id);
     if(el&&e.target===el) el.classList.remove('open');
   });
@@ -1242,6 +1533,8 @@ init();
   </div>
 </div>
 
+<div class="moverlay" id="spModal" onclick="if(event.target===this)closeSpModal()"></div>
+
 <div class="toast-c" id="toastC"></div>
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
@@ -1257,4 +1550,3 @@ init();
 </body>
 
 </html>
-
