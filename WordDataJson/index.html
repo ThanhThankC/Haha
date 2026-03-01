@@ -102,7 +102,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 /* Card */
 .vcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s,background .15s;position:relative;overflow:hidden}
 .vcard:hover{background:var(--surface2);border-color:color-mix(in srgb,var(--level-color) 55%,var(--border))}
-.vcard-bar{position:absolute;left:0;top:0;bottom:0;width:7px;border-radius:3px 0 0 3px}
+.vcard-bar{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:3px 0 0 3px}
 .vcard-badge{width:27px;height:27px;border-radius:8px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;letter-spacing:-.3px}
 .vcard-body{flex:1;min-width:0}
 .vcard-title{font-size:15px;font-weight:600;line-height:1.4}
@@ -120,7 +120,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .flbl{font-size:10px;font-family:'DM Mono',monospace}
 
 /* Card actions */
-.cactions{display:flex;gap:5px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.cactions{display:grid;grid-template-columns:1fr 1fr;gap:5px;opacity:0;transition:opacity .15s;flex-shrink:0}
 .vcard:hover .cactions{opacity:1}
 .iBtn{width:28px;height:28px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
 .iBtn:hover{background:var(--border);color:var(--text)}
